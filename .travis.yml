@@ -9,4 +9,4 @@ before_install:
 - npm install
 - bower install --force
 - bower install --force
-script: grunt
+script: ./node_modules/.bin/gulp
