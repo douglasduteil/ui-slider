@@ -1,4 +1,4 @@
-/* global  node : true */
+/* jshint node : true */
 
 'use strict';
 
@@ -33,46 +33,49 @@ var banner = ['/**',
 // BUILD
 //////////////////////////////////////////////////////////////////////////////
 
-gulp.task('clean', function() {
-  gulp.src('./dist/**').pipe(gulp.rimraf());
+gulp.task('clean', function(done) {
+  gulp.src('./dist/**').pipe(gulp.rimraf()).on('end', done);
 });
 
-gulp.task('build', ['uglifySrc'], function(){
+gulp.task('build', ['uglifySrc'], function(done){
 
   // copy css
   gulp.src('./src/*.css')
-    .pipe(gulp.dest('./dist/'));
+    .pipe(gulp.dest('./dist/'))
+    .on('end', done);
 
 });
 
-gulp.task('uglifySrc', ['ngmin'], function(){
+gulp.task('uglifySrc', ['ngmin'], function(done){
 
   // copy and minify js
   gulp.src('./dist/*.js')
     .pipe(gulp.uglify())
     .pipe(gulp.rename({ext: '.min.js'}))
-    //.pipe(gulp.header.fromFile('./head.tmp', {Ø : cm}))
     .pipe(gulp.header(banner, cm))
-    .pipe(gulp.dest('./dist/'));
+    .pipe(gulp.dest('./dist/'))
+    .on('end', done);
 });
 
-gulp.task('ngmin', function(){
+gulp.task('ngmin', function(done){
   gulp.src('./src/*.js')
     .pipe(cm.applyOnFileContent(ngmin.annotate))
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./dist'))
+    .on('end', done);
 });
 
-gulp.task('copy', function(){
+gulp.task('copy', function(done){
   gulp.src('./head.tmp')
     .pipe(cm.processTemplateFile())
     .pipe(gulp.rename({ext : '.js'}))
-    .pipe(gulp.dest('./dist/'));
+    .pipe(gulp.dest('./dist/'))
+    .on('end', done);
 });
 
 
 
 
-gulp.task('changelog', function(){
+gulp.task('changelog', function(done){
   changelogWrapper.generate()
     //.pipe(process.stdout)
     .pipe(
@@ -84,7 +87,8 @@ gulp.task('changelog', function(){
       })
     )
     .pipe(gulp.header('# UI.Slider - CHANGELOG'))
-    .pipe(gulp.dest('./'));
+    .pipe(gulp.dest('./'))
+    .on('end', done);
 });
 
 
@@ -96,16 +100,18 @@ gulp.task('changelog', function(){
 // TESTS
 //////////////////////////////////////////////////////////////////////////////
 
-gulp.task('jshintSources', function(){
+gulp.task('jshintSources', function(done){
   gulp.src('./src/*.js')
     .pipe(gulp.jshint('.jshintrc'))
-    .pipe(gulp.jshint.reporter(rpt));
+    .pipe(gulp.jshint.reporter(rpt))
+    .on('end', done);
 });
 
-gulp.task('jshintTests', function(){
+gulp.task('jshintTests', function(done){
   gulp.src('./test/*.spec.js')
     .pipe(gulp.jshint('./test/.jshintrc'))
-    .pipe(gulp.jshint.reporter(rpt));
+    .pipe(gulp.jshint.reporter(rpt))
+    .on('end', done);
 });
 gulp.task('jshint', ['jshintSources', 'jshintTests'], cm.noop);
 
