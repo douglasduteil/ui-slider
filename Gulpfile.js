@@ -6,8 +6,8 @@ var gulp = require('gulp');
 var cm = require('./lib/common');
 
 // More libs !
-var rpt = require(require('jshint-stylish')).reporter;
-var karmaHelper = require('node-karma-wrapper');
+var tasks = require('gulp-load-tasks')();
+var karma = require('node-karma-wrapper');
 var changelogWrapper = require('conventional-changelog-wrapper');
 var ngmin = require('ngmin');
 
@@ -37,35 +37,38 @@ gulp.task('clean', function() {
   gulp.src('./dist/**').pipe(gulp.rimraf());
 });
 
-gulp.task('build', ['uglifySrc'], function(){
+gulp.task('build', ['uglifySrc'], function(cb){
 
   // copy css
   gulp.src('./src/*.css')
-    .pipe(gulp.dest('./dist/'));
+    .pipe(gulp.dest('./dist/'))
+    .on('end', cb);
 
 });
 
-gulp.task('uglifySrc', ['ngmin'], function(){
+gulp.task('uglifySrc', ['ngmin'], function(cb){
 
   // copy and minify js
   gulp.src('./dist/*.js')
-    .pipe(gulp.uglify())
-    .pipe(gulp.rename({ext: '.min.js'}))
+    .pipe(tasks.uglify())
+    .pipe(tasks.rename({ext: '.min.js'}))
     //.pipe(gulp.header.fromFile('./head.tmp', {Ø : cm}))
-    .pipe(gulp.header(banner, cm))
-    .pipe(gulp.dest('./dist/'));
+    .pipe(tasks.header(banner, cm))
+    .pipe(gulp.dest('./dist/'))
+    .on('end', cb);
 });
 
-gulp.task('ngmin', function(){
+gulp.task('ngmin', function(cb){
   gulp.src('./src/*.js')
     .pipe(cm.applyOnFileContent(ngmin.annotate))
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./dist'))
+    .on('end', cb);
 });
 
 gulp.task('copy', function(){
   gulp.src('./head.tmp')
     .pipe(cm.processTemplateFile())
-    .pipe(gulp.rename({ext : '.js'}))
+    .pipe(tasks.rename({ext : '.js'}))
     .pipe(gulp.dest('./dist/'));
 });
 
@@ -83,7 +86,7 @@ gulp.task('changelog', function(){
         }));
       })
     )
-    .pipe(gulp.header('# UI.Slider - CHANGELOG'))
+    .pipe(tasks.header('# UI.Slider - CHANGELOG'))
     .pipe(gulp.dest('./'));
 });
 
@@ -98,14 +101,14 @@ gulp.task('changelog', function(){
 
 gulp.task('jshintSources', function(){
   gulp.src('./src/*.js')
-    .pipe(gulp.jshint('.jshintrc'))
-    .pipe(gulp.jshint.reporter(rpt));
+    .pipe(tasks.jshint('.jshintrc'))
+    .pipe(tasks.jshint.reporter(require(require('jshint-stylish'))));
 });
 
 gulp.task('jshintTests', function(){
   gulp.src('./test/*.spec.js')
-    .pipe(gulp.jshint('./test/.jshintrc'))
-    .pipe(gulp.jshint.reporter(rpt));
+    .pipe(tasks.jshint('./test/.jshintrc'))
+    .pipe(tasks.jshint.reporter(require(require('jshint-stylish'))));
 });
 gulp.task('jshint', ['jshintSources', 'jshintTests'], cm.noop);
 
@@ -142,11 +145,12 @@ function testConfig(configFile, customOptions){
   return cm.assign(options, customOptions, travisOptions);
 }
 
-var kwjQuery = karmaHelper( testConfig('./test/karma.conf.js', { files : getTestFiles(true) } ));
-var kwjQlite = karmaHelper( testConfig( './test/karma.conf.js', { files : getTestFiles(false) } ));
+var kwjQuery = karma( testConfig('./test/karma.conf.js', { files : getTestFiles(true) } ));
+var kwjQlite = karma( testConfig( './test/karma.conf.js', { files : getTestFiles(false) } ));
 
 gulp.task('test', function(cb){
   var done = cm.after(2, cb);
+
   kwjQuery.simpleRun(done);
   kwjQlite.simpleRun(done);
 });

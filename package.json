@@ -7,7 +7,7 @@
     "dateformat": "*",
     "event-stream": "*",
     "gulp": "*",
-    "gulp-header": "douglasduteil/gulp-header",
+    "gulp-header": "*",
     "gulp-jshint": "*",
     "gulp-load-tasks": "*",
     "gulp-rename": "*",
@@ -19,7 +19,7 @@
     "lodash.assign": "*",
     "lodash.template": "*",
     "ngmin": "*",
-    "node-karma-wrapper": "douglasduteil/node-karma-wrapper"
+    "node-karma-wrapper": "git://github.com/douglasduteil/node-karma-wrapper"
   },
   "main": "src/ui-slider.js",
   "repository": {
