@@ -5,8 +5,13 @@ node_js:
 before_install:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
-- npm install -g bower grunt-cli
-- npm install
+- npm install -qg bower gulp
+- npm install -q
 - bower install --force
 - bower install --force
-script: grunt
+after_success:
+- ./node_modules/angular-ui-publisher/travis/authentication.sh || exit 0
+- gulp dist
+- gulp build --branch=bower
+- gulp publish --branch=bower
+script: gulp

@@ -1,7 +1,6 @@
 // Karma configuration
-// Generated on Wed Nov 27 2013 14:23:40 GMT+0100 (CET)
 
-module.exports = function(config) {
+module.exports = function (config) {
   'use strict';
 
   config.set({
@@ -16,9 +15,13 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'bower_components/jquery/jquery.js',
+      //'test/helpers/spec_helper.js',
+      'bower_components/jquery/dist/jquery.js',
+      'test/helpers/jquery_alias.js',
+      'test/helpers/browserTrigger.js',
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/raf/index.js',
       'src/*',
       'test/*.spec.js'
     ],
@@ -32,11 +35,20 @@ module.exports = function(config) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['dots'],
+    reporters: ['dots', 'coverage'],
+
+    preprocessors: {
+      'src/*.js': ['coverage']
+    },
+
+    coverageReporter: {
+      type : 'html',
+      dir : 'coverage/jquery/'
+    },
 
 
     // web server port
-    port: 9876,
+    port: 5432,
 
 
     // enable / disable colors in the output (reporters and logs)

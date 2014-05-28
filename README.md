@@ -126,26 +126,18 @@ Example
 We use Karma and jshint to ensure the quality of the code.  The easiest way to run these checks is to use grunt:
 
 ```sh
-npm install -g grunt-cli
+npm install -g gulp
 npm install && bower install
-grunt
+gulp
 ```
 
-The karma task will try to open Firefox, PhantomJS and Chrome as browser in which to run the tests.  Make sure this is available or change the configuration in `test\karma.conf.js`
+The karma task will try to open Firefox and Chrome as browser in which to run the tests.  Make sure this is available or change the configuration in `test\karma-jqlite.conf.js` and `test\karma-jquery.conf.js`
 
+Some test tasks :
+ - `gulp karma` : Will run _jqlite_ and _jquery_ tests in simple run mode,
+ - `gulp karma:jqlite:unit` : Will run _jqlite_ tests in simple run mode,
+ - `gulp karma:jquery:unit` : Will run _jquery_ tests in simple run mode,
+ - `gulp karma:jqlite:watch` : Will run _jqlite_ tests and watch for changes,
+ - `gulp karma:jquery:watch` : Will run _jquery_ tests and watch for changes,
 
-### Grunt Serve
-
-We have one task to serve them all !
-
-```sh
-grunt serve
-```
-
-It's equal to run separately:
-
-* `grunt connect:server` : giving you a development server at [http://localhost:8888/demo/demo.html](http://localhost:8888/demo/demo.html).
-
-* `grunt karma:server` : giving you a Karma server to run tests with jquery (at [http://localhost:9876/](http://localhost:9876/) by default) and  without jquery (at [http://localhost:5432/](http://localhost:5432/) by default). You can force a test on this server with `grunt karma:unit(_jquery|_jqlite):run`.
-
-* `grunt watch` : will automatically test your code and build your demo.
+** `gulp serve` runs and watches all**
