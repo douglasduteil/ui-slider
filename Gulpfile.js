@@ -8,8 +8,9 @@ var gulp = require('gulp');
 
 gulp.task('default', ['jshint', 'karma']);
 gulp.task('serve', ['dist', 'continuousMode']);
-gulp.task('dist', ['clean:dist', 'uglify'], function(){
+gulp.task('dist', ['uglify'], function () {
   return gulp.src('*.css', { cwd: './src' })
+    .pipe($.changed('./dist'))
     .pipe(gulp.dest('./dist'));
 });
 
@@ -27,20 +28,22 @@ lodash.after = require('lodash.after');
 //
 // ACCESS TO THE ANGULAR-UI-PUBLISHER
 // inspired by https://github.com/angular-ui/angular-ui-publisher
-function targetTask(){
+function targetTask(argv) {
   var spawn = require('child_process').spawn;
 
-  return function(done){
+  return function (done) {
+    argv = argv || process.argv.slice(2);
     // I'm using the global gulp "" ci ""
-    spawn('gulp', process.argv.slice(2), {
-      cwd : './node_modules/angular-ui-publisher',
+
+    spawn('gulp', argv, {
+      cwd: './node_modules/angular-ui-publisher',
       stdio: 'inherit'
     }).on('close', done);
   }
 }
 
-gulp.task('build', targetTask('build'));
-gulp.task('publish', targetTask('publish'));
+gulp.task('build', ['clean:out'], targetTask());
+gulp.task('publish', ['clean:out'], targetTask());
 //
 //
 
@@ -51,34 +54,34 @@ gulp.task('publish', targetTask('publish'));
 // KARMA
 //////////////////////////////////////////////////////////////////////////////
 
-var kwjQlite = karmaHelper( testConfig( './test/karma-jqlite.conf.js' ));
-var kwjQuery = karmaHelper( testConfig( './test/karma-jquery.conf.js' ));
+var kwjQlite = karmaHelper(testConfig('./test/karma-jqlite.conf.js'));
+var kwjQuery = karmaHelper(testConfig('./test/karma-jquery.conf.js'));
 
-function testConfig(configFile, customOptions){
+function testConfig(configFile, customOptions) {
   var options = { configFile: configFile };
   var travisOptions = process.env.TRAVIS && { browsers: [ 'Firefox', 'PhantomJS'], reporters: ['dots'], singleRun: true  };
   return lodash.assign(options, customOptions, travisOptions);
 }
 
 
-gulp.task('karma', function(cb){
+gulp.task('karma', function (cb) {
   var done = lodash.after(2, cb);
   kwjQuery.simpleRun(done);
   kwjQlite.simpleRun(done);
 });
 
 gulp.task('karma:jqlite:unit', kwjQlite.simpleRun);
-gulp.task('karma:jqlite:watch', function(){
+gulp.task('karma:jqlite:watch', function () {
   kwjQlite.inBackground();
-  gulp.watch('./test/**', function(){
+  gulp.watch('./test/**', function () {
     kwjQlite.run();
   });
 });
 
 gulp.task('karma:jquery:unit', kwjQuery.simpleRun);
-gulp.task('karma:jquery:watch', function(){
+gulp.task('karma:jquery:watch', function () {
   kwjQuery.inBackground();
-  gulp.watch('./test/**', function(){
+  gulp.watch('./test/**', function () {
     kwjQuery.run();
   });
 });
@@ -96,10 +99,30 @@ gulp.task('clean:dist', function () {
     .pipe($.rimraf());
 });
 
+gulp.task('clean:out', function () {
+  return gulp.src('./out')
+    .pipe($.rimraf());
+});
+
 gulp.task('ngmin', function () {
   return gulp.src('*.js', { cwd: './src' })
+    .pipe($.changed('./dist'))
     .pipe($.ngmin())
     .pipe(gulp.dest('./dist'));
+});
+
+var browserSync = require('browser-sync');
+function startBs() {
+  return browserSync.init(null, {
+    server: {
+      open: false,
+      debounce: 200,
+      baseDir: "./out/built/gh-pages/"
+    }
+  });
+}
+gulp.task('browser-sync', function () {
+  startBs();
 });
 
 
@@ -107,14 +130,14 @@ gulp.task('ngmin', function () {
 // LINTING
 //////////////////////////////////////////////////////////////////////////////
 
-gulp.task('jshint:src', function(done){
+gulp.task('jshint:src', function (done) {
   return gulp.src('./src/*.js')
     .pipe($.jshint())
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe($.jshint.reporter('fail'));
 });
 
-gulp.task('jshint:test', function(done){
+gulp.task('jshint:test', function (done) {
   return gulp.src('./test/*.spec.js')
     .pipe($.jshint({
       globals: {
@@ -149,6 +172,7 @@ gulp.task('jshint', ['jshint:src', 'jshint:test']);
 //////////////////////////////////////////////////////////////////////////////
 gulp.task('uglify', ['ngmin'], function () {
   return gulp.src('./dist/*.js')
+    .pipe($.changed('./dist'))
     .pipe($.rename({ suffix: '.min'}))
     .pipe($.uglify({mangle: false}))
     .pipe(gulp.dest('./dist'));
@@ -159,11 +183,11 @@ gulp.task('uglify', ['ngmin'], function () {
 //////////////////////////////////////////////////////////////////////////////
 // CONTINUOUS MODE
 //////////////////////////////////////////////////////////////////////////////
-gulp.task('continuousMode', function(){
+gulp.task('continuousMode', function () {
   kwjQuery.inBackground();
   kwjQlite.inBackground();
 
-  gulp.task('_continuousMode:runTests', function(cb){
+  gulp.task('_continuousMode:runTests', function (cb) {
     var done = lodash.after(2, cb);
     kwjQuery.run(done);
     kwjQlite.run(done);
@@ -174,4 +198,25 @@ gulp.task('continuousMode', function(){
 
   gulp.watch('./src/**', ['jshint:src', '_continuousMode:runTests']);
 
+});
+
+gulp.task('serve:gh-pages', function () {
+
+  var bs = startBs();
+
+  gulp.task('_serve:build-gh-pages', targetTask([ 'build', '--branch=gh-pages' ]));
+
+  gulp.task('_serve:gh-pages', ['_serve:build-gh-pages'], function () {
+    return gulp.src('./out/built/gh-pages/**')
+      .pipe(browserSync.reload({stream: true, once: true}));
+  });
+
+  gulp.watch(['./src/**'], ['dist']);
+  gulp.watch(['./dist/**'], $.batch({ debounce : 1000}, function (events) {
+    gulp.run('_serve:build-gh-pages');
+  }));
+  gulp.watch('./out/built/gh-pages/**', $.batch(function (events){
+    return events
+      .pipe(browserSync.reload({stream: true}));
+  }));
 });
