@@ -1,37 +1,43 @@
 'use strict';
 
-xdescribe('uiSlider', function () {
+describe('RequestAnimationFrame polyfill required', function () {
+  it('requestAnimationFrame', function () {
+    expect(window.requestAnimationFrame).toBeDefined();
+  });
+  it('cancelAnimationFrame', function () {
+    expect(window.cancelAnimationFrame).toBeDefined();
+  });
+});
 
-  // declare these up here to be global to all tests
-  var scope, $compile, element;
+describe('Directive: uiSlider', function () {
 
-  /**
-   * UTILS
-   */
+  var element, scope, compile,
+    validTemplate = '<div ui-slider></div>';
 
-  function appendTemplate(tpl) {
-    element = angular.element(tpl);
-    angular.element(document.body).append(element);
-    $compile(element)(scope);
+  function createDirective(data, template) {
+    var elm;
+
+//    scope.data = data || defaultData;
+
+    elm = angular.element(template || validTemplate);
+    angular.element(document.body).prepend(elm);
+    compile(elm)(scope);
     scope.$digest();
+
+    return elm;
   }
 
-  /**
-   * TESTS
-   */
-
-  beforeEach(module('ui.slider'));
-
-  // inject in angular constructs. Injector knows about leading/trailing underscores and does the right thing
-  // otherwise, you would need to inject these into each test
-  beforeEach(inject(function (_$rootScope_, _$compile_) {
-    scope = _$rootScope_.$new();
-    $compile = _$compile_;
-  }));
-
-  // Spy on the requestAnimationFrame to directly trigger it
   beforeEach(function () {
-    spyOn(window, 'requestAnimationFrame').andCallFake(function (fct) {
+
+    module('ui.slider');
+
+    inject(function ($rootScope, $compile) {
+      scope = $rootScope.$new();
+      compile = $compile;
+    });
+
+    // Spy on the requestAnimationFrame to directly trigger it
+    spyOn(window, 'requestAnimationFrame').and.callFake(function (fct) {
       fct();
     });
   });
@@ -42,17 +48,17 @@ xdescribe('uiSlider', function () {
 
   describe('restrictions', function () {
     it('should have a expected result', function () {
-      appendTemplate('<div ui-slider></div>');
+      element = createDirective();
       expect(element.children().length).toBeGreaterThan(0);
     });
 
     it('should work as an element', function () {
-      appendTemplate('<ui-slider></ui-slider>');
+      element = createDirective(null, '<ui-slider></ui-slider>');
       expect(element.children().length).toBeGreaterThan(0);
     });
 
     it('should work as a class', function () {
-      appendTemplate('<div class="ui-slider"></div>');
+      element = createDirective(null, '<div class="ui-slider"></div>');
       expect(element.children().length).toBeGreaterThan(0);
     });
   });
@@ -60,9 +66,8 @@ xdescribe('uiSlider', function () {
   describe('static', function () {
     var track, thumb;
     beforeEach(function () {
-      appendTemplate('<ui-slider></ui-slider>');
-
-      thumb = element.children();
+      element = createDirective(null, '<ui-slider></ui-slider>');
+      thumb = angular.element(element.children()[0]);
     });
 
     it('should have a track and a thumb', function () {
@@ -103,8 +108,8 @@ xdescribe('uiSlider', function () {
     var $thumb, thumbOriginLeft;
 
     function setupThumb(tpl) {
-      appendTemplate(
-        '<ui-slider class="ui-slider-default">' +
+      element = createDirective(null,
+          '<ui-slider class="ui-slider-default">' +
           tpl +
           '</ui-slider>'
       );
@@ -147,14 +152,14 @@ xdescribe('uiSlider', function () {
 
       it('should be valid', function () {
         expect($thumb).toBeValid();
-        expect($thumb).toHasClass('ng-valid-min ng-valid-max ng-valid-step', 'ng-invalid-min ng-invalid-max ng-invalid-step');
+        expect($thumb).toHaveClass('ng-valid-min ng-valid-max ng-valid-step', 'ng-invalid-min ng-invalid-max ng-invalid-step');
       });
 
       it('should be invalid \'cause not a number', function () {
         scope.$apply("foo = '1'");
 
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-number', 'ng-valid-number');
+        expect($thumb).toHaveClass('ng-invalid-number', 'ng-valid-number');
         expect(ngCtrl.$viewValue).toBeNaN();
       });
 
@@ -162,7 +167,7 @@ xdescribe('uiSlider', function () {
         scope.$apply("foo = -1");
 
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-min', 'ng-valid-min');
+        expect($thumb).toHaveClass('ng-invalid-min', 'ng-valid-min');
         expect(ngCtrl.$viewValue).toBeNaN();
       });
 
@@ -170,7 +175,7 @@ xdescribe('uiSlider', function () {
         scope.$apply("foo = 1000");
 
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-max', 'ng-valid-max');
+        expect($thumb).toHaveClass('ng-invalid-max', 'ng-valid-max');
         expect(ngCtrl.$viewValue).toBeNaN();
       });
 
@@ -178,7 +183,7 @@ xdescribe('uiSlider', function () {
         scope.$apply("foo = 0.5");
 
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-step', 'ng-valid-step');
+        expect($thumb).toHaveClass('ng-invalid-step', 'ng-valid-step');
         expect(ngCtrl.$viewValue).toBeNaN();
       });
     });
@@ -195,31 +200,31 @@ xdescribe('uiSlider', function () {
       it('should validate even if min value changes', function () {
         scope.$apply("foo = 0");
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-min', 'ng-valid-min');
+        expect($thumb).toHaveClass('ng-invalid-min', 'ng-valid-min');
 
         scope.$apply("min = 0");
         expect($thumb).toBeValid();
-        expect($thumb).toHasClass('ng-valid-min', 'ng-invalid-min');
+        expect($thumb).toHaveClass('ng-valid-min', 'ng-invalid-min');
       });
 
       it('should validate even if max value changes on-the-fly', function () {
         scope.$apply("foo = 30");
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-max', 'ng-valid-max');
+        expect($thumb).toHaveClass('ng-invalid-max', 'ng-valid-max');
 
         scope.$apply("max = 30");
         expect($thumb).toBeValid();
-        expect($thumb).toHasClass('ng-valid-max', 'ng-invalid-max');
+        expect($thumb).toHaveClass('ng-valid-max', 'ng-invalid-max');
       });
 
       it('should validate even if step value changes on-the-fly', function () {
         scope.$apply("foo = 10.5");
         expect($thumb).toBeInvalid();
-        expect($thumb).toHasClass('ng-invalid-step', 'ng-valid-step');
+        expect($thumb).toHaveClass('ng-invalid-step', 'ng-valid-step');
 
         scope.$apply("step = 0.5");
         expect($thumb).toBeValid();
-        expect($thumb).toHasClass('ng-valid-step', 'ng-invalid-step');
+        expect($thumb).toHaveClass('ng-valid-step', 'ng-invalid-step');
       });
 
     });
@@ -233,57 +238,57 @@ xdescribe('uiSlider', function () {
       scope.min = 10;
       scope.max = 20;
       scope.step = 1;
-      spyOn(scope, "$emit").andCallThrough();
-      appendTemplate(
-        '<ui-slider class="ui-slider-default" min="{{min}}"  max="{{max}}"  step="{{step}}">' +
+      spyOn(scope, "$emit").and.callThrough();
+      element = createDirective(null,
+          '<ui-slider class="ui-slider-default" min="{{min}}"  max="{{max}}"  step="{{step}}">' +
           '<ui-slider-thumb ng-model="foo"></ui-slider-thumb>' +
           '</ui-slider>'
       );
       $thumb = _jQuery(element[0]).find('ui-slider-thumb');
       expect(scope.$emit).toHaveBeenCalled();
-      expect(scope.$emit.callCount).toEqual(3);
+      expect(scope.$emit.calls.count()).toEqual(3);
     });
 
     it('should influence the thumb min', function () {
-      scope.$emit.reset();
+      scope.$emit.calls.reset();
 
       scope.$apply("foo = 0");
       expect($thumb).toBeInvalid();
-      expect($thumb).toHasClass('ng-invalid-min', 'ng-valid-min');
+      expect($thumb).toHaveClass('ng-invalid-min', 'ng-valid-min');
 
       scope.$apply("min = 0");
       expect(scope.$emit).toHaveBeenCalledWith('global min changed');
 
       expect($thumb).toBeValid();
-      expect($thumb).toHasClass('ng-valid-min', 'ng-invalid-min');
+      expect($thumb).toHaveClass('ng-valid-min', 'ng-invalid-min');
     });
 
     it('should influence the thumb max', function () {
-      scope.$emit.reset();
+      scope.$emit.calls.reset();
 
       scope.$apply("foo = 30");
       expect($thumb).toBeInvalid();
-      expect($thumb).toHasClass('ng-invalid-max', 'ng-valid-max');
+      expect($thumb).toHaveClass('ng-invalid-max', 'ng-valid-max');
 
       scope.$apply("max = 30");
       expect(scope.$emit).toHaveBeenCalledWith('global max changed');
 
       expect($thumb).toBeValid();
-      expect($thumb).toHasClass('ng-valid-max', 'ng-invalid-max');
+      expect($thumb).toHaveClass('ng-valid-max', 'ng-invalid-max');
     });
 
     it('should influence the thumb step', function () {
-      scope.$emit.reset();
+      scope.$emit.calls.reset();
 
       scope.$apply("foo = 10.5");
       expect($thumb).toBeInvalid();
-      expect($thumb).toHasClass('ng-invalid-step', 'ng-valid-step');
+      expect($thumb).toHaveClass('ng-invalid-step', 'ng-valid-step');
 
       scope.$apply("step = 0.5");
       expect(scope.$emit).toHaveBeenCalledWith('global step changed');
 
       expect($thumb).toBeValid();
-      expect($thumb).toHasClass('ng-valid-step', 'ng-invalid-step');
+      expect($thumb).toHaveClass('ng-valid-step', 'ng-invalid-step');
     });
 
   });
@@ -292,8 +297,8 @@ xdescribe('uiSlider', function () {
     var $range;
 
     function setupRange(tpl) {
-      appendTemplate(
-        '<ui-slider class="ui-slider-default">' +
+      element = createDirective(null,
+          '<ui-slider class="ui-slider-default">' +
           tpl +
           '<ui-slider-thumb ng-model="foo"></ui-slider-thumb>' +
           '</ui-slider>'
