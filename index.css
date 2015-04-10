@@ -13,16 +13,14 @@ ui-slider:after {
   z-index: -1;
 }
 
-/* line 19, src/scss/_layout.scss */
+/* line 20, src/scss/_layout.scss */
 ui-slider-thumb {
-  display: block;
   position: absolute;
   cursor: pointer;
 }
 
 /* line 25, src/scss/_layout.scss */
 ui-slider-range {
-  display: block;
   position: absolute;
   height: 100%;
   left: 0;

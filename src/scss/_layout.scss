@@ -14,16 +14,15 @@ ui-slider {
     content: '';
     z-index: -1;
   }
+
 }
 
 ui-slider-thumb {
-  display: block;
   position: absolute;
   cursor: pointer;
 }
 
 ui-slider-range {
-  display: block;
   position: absolute;
   height: 100%;
   left: 0;

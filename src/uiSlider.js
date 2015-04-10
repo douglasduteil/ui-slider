@@ -2,16 +2,17 @@
 
 import {Component, Template} from 'ng2in1';
 import uiSliderThumb from './uiSliderThumb';
+import uiSliderRange from './uiSliderRange';
 
 @Component({
   selector: 'ui-slider',
   compile: uiSliderCompile
 })
 @Template({
-  directives: [uiSliderThumb]
+  directives: [uiSliderThumb, uiSliderRange]
 })
 export default class uiSlider {
-  constructor($element){
+  constructor($element) {
     this.element = $element;
     this.min = 0;
     this.max = 100;
@@ -21,19 +22,17 @@ export default class uiSlider {
 
 ////
 
-const DEFAULT_EMPTY_SLIDER_HTML_CONTENT = `
-<ui-slider-thumb
-  ng-model="__${Math.random().toString(36).substring(7)}">
-</ui-slider-thumb>
-`;
+function uiSliderCompile(tElement) {
+  _fillUpElementIfEmpty(tElement);
 
-function uiSliderCompile(tElement, tAttrs, transclude){
-  console.log('linking uiSliderLink', Array.from(arguments));
-
-  fillUpElementIfEmpty(tElement);
+  return function (scope, iElement, iAttrs, uiSliderCtrl) {
+    _observeUiSliderAttributes(iAttrs, uiSliderCtrl);
+  };
 }
 
-function fillUpElementIfEmpty(tElement){
+//
+
+function _fillUpElementIfEmpty(tElement) {
   if (tElement.children().length > 0) {
     return;
   }
@@ -43,5 +42,41 @@ function fillUpElementIfEmpty(tElement){
     tElement.addClass('ui-slider--default');
   }
 
-  tElement.append(DEFAULT_EMPTY_SLIDER_HTML_CONTENT);
+  tElement.append(_getDefaultEmptySliderHtmlTemple());
+}
+
+function _getDefaultEmptySliderHtmlTemple() {
+  return `
+  <ui-slider-thumb
+   ng-model="__${Math.random().toString(36).substring(7)}">
+  </ui-slider-thumb>
+  `;
+}
+
+//
+
+function _observeUiSliderAttributes(iAttrs, uiSliderCtrl) {
+
+  // TODO(douglasduteil): [REFACTO] unify observed attrs with change event broadcast
+  const OBSERVED_ATTRS = {
+    max: (newValue) => {
+      if (isNaN(+newValue) || newValue === '') return;
+      uiSliderCtrl.max = +newValue;
+    },
+    min: (newValue) => {
+      if (isNaN(+newValue) || newValue === '') return;
+      newValue = +newValue;
+      uiSliderCtrl.min = +newValue;
+    },
+    step: (newValue) => {
+      if (isNaN(+newValue) || newValue === '') return;
+      uiSliderCtrl.step = +newValue;
+    }
+  };
+
+  Object
+    .keys(OBSERVED_ATTRS)
+    .map((attrName) => [OBSERVED_ATTRS[attrName], attrName])
+    .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
+  ;
 }
