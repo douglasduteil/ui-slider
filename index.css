@@ -1,0 +1,63 @@
+/* line 5, src/scss/_layout.scss */
+ui-slider {
+  position: relative;
+  display: block;
+}
+/* line 9, src/scss/_layout.scss */
+ui-slider:after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: block;
+  content: '';
+  z-index: -1;
+}
+
+/* line 19, src/scss/_layout.scss */
+ui-slider-thumb {
+  display: block;
+  position: absolute;
+  cursor: pointer;
+}
+
+/* line 25, src/scss/_layout.scss */
+ui-slider-range {
+  display: block;
+  position: absolute;
+  height: 100%;
+  left: 0;
+  right: 100%;
+}
+
+/* line 5, src/scss/themes/_default.scss */
+.ui-slider--default {
+  height: 21px;
+  margin-right: 11px;
+}
+/* line 19, src/scss/themes/_default.scss */
+.ui-slider--default:after, .ui-slider--default ui-slider-range {
+  height: 5px;
+  top: 8px;
+  right: -11px;
+}
+/* line 28, src/scss/themes/_default.scss */
+.ui-slider--default:after {
+  background: #ddd;
+}
+/* line 33, src/scss/themes/_default.scss */
+.ui-slider--default ui-slider-thumb {
+  width: 11px;
+  height: 21px;
+  background: #ccc;
+  border: solid 1px #aaa;
+}
+/* line 39, src/scss/themes/_default.scss */
+.ui-slider--default ui-slider-thumb:hover {
+  background: #ddd;
+}
+/* line 44, src/scss/themes/_default.scss */
+.ui-slider--default ui-slider-range {
+  background: #aaa;
+}
+
+/*# sourceMappingURL=index.css.map */
