@@ -1,0 +1,8 @@
+{
+  "expr": true,
+  "esnext": true,
+  "mocha": true,
+  "globals":{
+    "expect": false
+  }
+}
