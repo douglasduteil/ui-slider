@@ -1,0 +1,30 @@
+//
+//== Layout
+//------------------------------------------------------------------------------
+
+ui-slider {
+  position: relative;
+  display: block;
+
+  &:after {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: block;
+    content: '';
+    z-index: -1;
+  }
+
+}
+
+ui-slider-thumb {
+  position: absolute;
+  cursor: pointer;
+}
+
+ui-slider-range {
+  position: absolute;
+  height: 100%;
+  left: 0;
+  right: 100%;
+}
