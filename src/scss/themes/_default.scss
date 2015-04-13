@@ -16,7 +16,7 @@
   ////
 
   @at-root {
-    %ui-slider--default__range{
+    %ui-slider--default__range {
       height: $range--height;
       top: floor(($thumb--outer-height - $range--height) / 2);
       right: -$thumb--outer-width;

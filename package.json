@@ -1,14 +1,51 @@
 {
   "name": "ui-slider",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "keywords": [
+    "angular",
+    "angular-ui",
+    "browser",
+    "input",
+    "input[range]",
+    "range",
+    "widget"
+  ],
+  "author": {
+    "name": "Douglas Duteil",
+    "email": "douglasduteil@gmail.com"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "homepage": "http://github.com/douglasduteil/ui-slider",
+  "bugs": {
+    "url": "http://github.com/douglasduteil/ui-slider/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/douglasduteil/ui-slider.git"
+  },
+  "license": "WTFPL",
+  "devDependencies": {
+    "babel-core": "^5.0.12",
+    "chai": "^2.2.0",
+    "isparta": "^3.0.3",
+    "istanbul": "^0.3.13",
+    "karma": "^0.12.31",
+    "karma-babel-preprocessor": "^5.0.1",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-coverage": "git://github.com/karma-runner/karma-coverage.git#master",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-jspm": "^1.1.4",
+    "karma-mocha": "^0.1.10",
+    "karma-mocha-reporter": "^1.0.2",
+    "minimist": "^1.1.1",
+    "mocha": "^2.2.4"
+  },
+  "scripts": {
+    "test": "karma start --single-run",
+    "scss": "scss src/uiSlider.scss:index.css -t expanded -l --precision 3"
+  },
   "jspm": {
     "directories": {},
     "configFile": "jspm.config.js",
@@ -19,6 +56,7 @@
       "ng2in1": "github:douglasduteil/ng2in1@dev"
     },
     "devDependencies": {
+      "angular-mocks": "github:angular/bower-angular-mocks@^1.3.15",
       "babel": "npm:babel-core@^5.0.12",
       "babel-runtime": "npm:babel-runtime@^5.0.12",
       "core-js": "npm:core-js@^0.8.1"

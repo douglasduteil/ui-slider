@@ -18,11 +18,13 @@ ui-slider {
 }
 
 ui-slider-thumb {
+  display: block;
   position: absolute;
   cursor: pointer;
 }
 
 ui-slider-range {
+  display: block;
   position: absolute;
   height: 100%;
   left: 0;

@@ -8,4 +8,3 @@ import './index.css!';
 
 export default uiSliderComponent;
 export const uiSliderModule = ng1xModule(uiSliderComponent, {dependencies: ['ngTouch']});
-

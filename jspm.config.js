@@ -2,6 +2,7 @@ System.config({
   "baseURL": "/",
   "transpiler": "babel",
   "babelOptions": {
+    "stage": 0,
     "optional": [
       "runtime"
     ]
@@ -16,12 +17,16 @@ System.config({
 System.config({
   "map": {
     "angular": "github:angular/bower-angular@1.3.15",
+    "angular-mocks": "github:angular/bower-angular-mocks@1.3.15",
     "angular-touch": "github:angular/bower-angular-touch@1.3.15",
-    "babel": "npm:babel-core@5.1.2",
-    "babel-runtime": "npm:babel-runtime@5.1.2",
-    "core-js": "npm:core-js@0.8.2",
+    "babel": "npm:babel-core@5.1.5",
+    "babel-runtime": "npm:babel-runtime@5.1.5",
+    "core-js": "npm:core-js@0.8.3",
     "css": "github:systemjs/plugin-css@0.1.9",
     "ng2in1": "github:douglasduteil/ng2in1@dev",
+    "github:angular/bower-angular-mocks@1.3.15": {
+      "angular": "github:angular/bower-angular@1.3.15"
+    },
     "github:angular/bower-angular-touch@1.3.15": {
       "angular": "github:angular/bower-angular@1.3.15"
     },
@@ -106,7 +111,7 @@ System.config({
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.1"
     },
-    "npm:core-js@0.8.2": {
+    "npm:core-js@0.8.3": {
       "process": "github:jspm/nodelibs-process@0.1.1"
     },
     "npm:core-util-is@1.0.1": {
