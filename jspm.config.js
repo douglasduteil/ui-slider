@@ -23,14 +23,14 @@ System.config({
     "babel-runtime": "npm:babel-runtime@5.1.5",
     "core-js": "npm:core-js@0.8.3",
     "css": "github:systemjs/plugin-css@0.1.9",
-    "ng2in1": "github:douglasduteil/ng2in1@dev",
+    "ng2in1": "github:douglasduteil/ng2in1@master",
     "github:angular/bower-angular-mocks@1.3.15": {
       "angular": "github:angular/bower-angular@1.3.15"
     },
     "github:angular/bower-angular-touch@1.3.15": {
       "angular": "github:angular/bower-angular@1.3.15"
     },
-    "github:douglasduteil/ng2in1@dev": {
+    "github:douglasduteil/ng2in1@master": {
       "angular": "github:angular/bower-angular@1.3.15",
       "camelcase": "npm:camelcase@1.0.2",
       "lodash": "npm:lodash@3.6.0"
