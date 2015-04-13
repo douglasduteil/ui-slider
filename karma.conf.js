@@ -59,7 +59,7 @@ module.exports = function (config) {
         // configure the reporter to use isparta for JavaScript coverage
         instrumenters: {isparta: require('isparta')},
         instrumenter: {
-            '**/*.js': 'isparta'
+          '**/*.js': 'isparta'
         },
 
         reporters: [
