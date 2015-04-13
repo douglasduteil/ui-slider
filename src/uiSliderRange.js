@@ -14,27 +14,52 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
   selector: 'ui-slider-range'
 })
 export default class uiSliderRange {
-  constructor($element) {
+  constructor($element, $attrs) {
 
     this.$element = $element;
-
+    this.$attrs = $attrs;
 
   }
 
+  formatMaxValue(newVal){
+    let displayed = angular.isDefined(this.$attrs.start) || angular.isDefined(this.$attrs.end);
+    let val = !isNaN(+newVal) ? +newVal : displayed ? 100 : 0;
+    val = (val - this.uiSliderCtrl.min ) / (this.uiSliderCtrl.max - this.uiSliderCtrl.min) * 100;
+    return val;
+    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.end + '])
+    // TODO force width 0 if (left + right === 100 )
+
+  }
+
+  formatMinValue(newVal){
+    let val = !isNaN(+newVal) ? +newVal : 0;
+    val = (val - this.uiSliderCtrl.min ) / (this.uiSliderCtrl.max - this.uiSliderCtrl.min) * 100;
+    return val;
+    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.start + '])
+    // TODO force width 0 if (left + right === 100 )
+  }
 }
 
 function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
 
   const uiSliderRangeCtrl = iElement.controller(uiSliderRange.name);
 
+  // REQUIRED ! (Lazy injecting...)
+  uiSliderRangeCtrl.uiSliderCtrl = uiSliderCtrl;
 
   ////////////////////////////////////////////////////////////////////
   // OBSERVERS
   ////////////////////////////////////////////////////////////////////
 
   const OBBSERVED_ATTRS = {
-    max: _onUpdateMaxValue,
-    min: _onUpdateMinValue
+    max: (newValue) => {
+      const maxVal = uiSliderRangeCtrl.formatMaxValue(newValue);
+      iElement.css('right', (100 - maxVal) + '%');
+    },
+    min: (newValue) => {
+      const minVal = uiSliderRangeCtrl.formatMinValue(newValue);
+      iElement.css('left', (minVal) + '%');
+    }
   };
 
   Object
@@ -43,44 +68,4 @@ function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
     .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
   ;
 
-
-  //
-
-  function _onUpdateMaxValue(newVal) {
-    let displayed = angular.isDefined(iAttrs.start) || angular.isDefined(iAttrs.end);
-    let val = !isNaN(+newVal) ? +newVal : displayed ? 100 : 0;
-    val = (val - uiSliderCtrl.min ) / (uiSliderCtrl.max - uiSliderCtrl.min) * 100;
-    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.end + '])
-    // TODO force width 0 if (left + right === 100 )
-    iElement.css('right', (100 - val) + '%');
-  }
-
-  function _onUpdateMinValue(newVal) {
-    let val = !isNaN(+newVal) ? +newVal : 0;
-    val = (val - uiSliderCtrl.min ) / (uiSliderCtrl.max - uiSliderCtrl.min) * 100;
-    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.start + '])
-    // TODO force width 0 if (left + right === 100 )
-    iElement.css('left', val + '%');
-  }
-
-/*
-  // Observe the start attr (default 0%)
-  iAttrs.$observe('min', function (newVal) {
-    var val = !isNaN(+newVal) ? +newVal : 0;
-    val = (val - uiSliderCtrl.min ) / (uiSliderCtrl.max - uiSliderCtrl.min) * 100;
-    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.start + '])
-    // TODO force width 0 if (left + right === 100 )
-    iElement.css('left', val + '%');
-  });
-
-  // Observe the min attr (default 100%)
-  iAttrs.$observe('max', function (newVal) {
-    // Don't display the range if no attr are specified
-    var displayed = angular.isDefined(iAttrs.start) || angular.isDefined(iAttrs.end);
-    var val = !isNaN(+newVal) ? +newVal : displayed ? 100 : 0;
-    val = (val - uiSliderCtrl.min ) / (uiSliderCtrl.max - uiSliderCtrl.min) * 100;
-    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.end + '])
-    // TODO force width 0 if (left + right === 100 )
-    iElement.css('right', (100 - val) + '%');
-  });*/
 }

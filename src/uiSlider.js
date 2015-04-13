@@ -12,7 +12,7 @@ import uiSliderRange from './uiSliderRange';
   directives: [uiSliderThumb, uiSliderRange]
 })
 export default class uiSlider {
-  constructor($element){
+  constructor($element) {
     this.element = $element;
     this.min = 0;
     this.max = 100;
@@ -22,17 +22,51 @@ export default class uiSlider {
 
 ////
 
-const DEFAULT_EMPTY_SLIDER_HTML_CONTENT = `
-<ui-slider-thumb
-  ng-model="__${Math.random().toString(36).substring(7)}">
-</ui-slider-thumb>
-`;
-
-function uiSliderCompile(tElement, tAttrs, transclude){
+function uiSliderCompile(tElement, tAttrs, transclude) {
   fillUpElementIfEmpty(tElement);
+
+  return function (scope, iElement, iAttrs, uiSliderCtrl){
+
+    ////////////////////////////////////////////////////////////////////
+    // OBSERVERS
+    ////////////////////////////////////////////////////////////////////
+
+    const OBBSERVED_ATTRS = {
+      max: (newValue) => {
+        newValue = +newValue;
+        const maxVal = !isNaN(newValue) ? newValue: uiSliderCtrl.max;
+        if (hasChangedValue(maxVal, uiSliderCtrl.max)) {
+          uiSliderCtrl.max = maxVal;
+          //scope.$emit('uiSliderCtrl.max', maxVal);
+        }
+      },
+      min: (newValue) => {
+        newValue = +newValue;
+        const minVal = !isNaN(newValue) ? newValue: uiSliderCtrl.mi;
+        if (hasChangedValue(minVal, uiSliderCtrl.min)) {
+          uiSliderCtrl.min = minVal;
+          //scope.$emit('uiSliderCtrl.min', minVal);
+        }
+      },
+      step: (newValue) => {
+        newValue = +newValue;
+        const stepVal = !isNaN(newValue) ? newValue: uiSliderCtrl.step;
+        if (hasChangedValue(stepVal, uiSliderCtrl.step)) {
+          uiSliderCtrl.step = stepVal;
+          //scope.$emit('uiSliderCtrl.step', stepVal);
+        }
+      }
+    };
+
+    Object
+      .keys(OBBSERVED_ATTRS)
+      .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
+      .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
+    ;
+  }
 }
 
-function fillUpElementIfEmpty(tElement){
+function fillUpElementIfEmpty(tElement) {
   if (tElement.children().length > 0) {
     return;
   }
@@ -42,5 +76,18 @@ function fillUpElementIfEmpty(tElement){
     tElement.addClass('ui-slider--default');
   }
 
-  tElement.append(DEFAULT_EMPTY_SLIDER_HTML_CONTENT);
+  tElement.append(getDefaultEmptySliderHtmlYTemple());
+}
+
+function getDefaultEmptySliderHtmlYTemple() {
+  return `
+  <ui-slider-thumb
+   ng-model="__${Math.random().toString(36).substring(7)}">
+  </ui-slider-thumb>
+  `;
+}
+
+function hasChangedValue(newVal, oldVal){
+  return !angular.isUndefined(newVal)
+    && !isNaN(newVal) && oldVal !== newVal;
 }
