@@ -8,7 +8,7 @@ import uiSliderThumb from './uiSliderThumb';
   compile: uiSliderCompile
 })
 @Template({
-  directives: [uiSliderThumb]
+  directives: ['ngTouch', uiSliderThumb]
 })
 export default class uiSlider {
   constructor($element){
@@ -28,8 +28,6 @@ const DEFAULT_EMPTY_SLIDER_HTML_CONTENT = `
 `;
 
 function uiSliderCompile(tElement, tAttrs, transclude){
-  console.log('linking uiSliderLink', Array.from(arguments));
-
   fillUpElementIfEmpty(tElement);
 }
 
