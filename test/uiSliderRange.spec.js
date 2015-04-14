@@ -5,7 +5,7 @@ import 'angular-mocks';
 
 import {uiSliderModule} from '../index';
 
-describe.only('uiSliderRange', function () {
+describe('uiSliderRange', function () {
 
   beforeEach(function () {
     var suite = this;
