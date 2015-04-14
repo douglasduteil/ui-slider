@@ -64,20 +64,17 @@ export default class uiSliderThumb {
 function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl]) {
   const uiSliderThumbCtrl = iElement.controller(uiSliderThumb.name);
 
-  // initialize controller data with parent controller settings
-  Object.assign(uiSliderThumbCtrl, {
-    max: uiSliderCtrl.max,
-    min: uiSliderCtrl.min,
-    step: uiSliderCtrl.step
-  });
-
   uiSliderThumbCtrl.setupAttrsObservers({
     uiSliderCtrl,
     uiSliderThumbCtrl,
     ngModelCtrl
   });
 
-  uiSliderNgModel(ngModelCtrl, { $element: iElement, uiSliderThumbCtrl });
+  uiSliderNgModel(ngModelCtrl, {
+    $element: iElement,
+    uiSliderCtrl,
+    uiSliderThumbCtrl
+  });
 
   _observeUiSliderThumbAttributes(iAttrs, uiSliderThumbCtrl);
 
@@ -141,7 +138,7 @@ function _formatValue(value, min = 0, max = 100, step = 1 / 100000) {
   return formattedValue;
 }
 
-function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
+function uiSliderNgModel(ngModelCtrl, {$element, uiSliderCtrl, uiSliderThumbCtrl}) {
   ngModelCtrl.$render = uiSliderNgModelRender;
 
   ////
@@ -158,14 +155,15 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
   }
 
   function drawFromTheModelValue() {
-    var thumbLeftPosition = (ngModelCtrl.$viewValue - uiSliderThumbCtrl.min )
-      / (uiSliderThumbCtrl.max - uiSliderThumbCtrl.min) * 100;
+    var thumbLeftPosition = (ngModelCtrl.$viewValue - uiSliderCtrl.min )
+      / (uiSliderCtrl.max - uiSliderCtrl.min) * 100;
     $element.css('left', thumbLeftPosition + '%');
   }
 
   ////////////////////////////////////////////////////////////////////
   // FORMATTING
   ////////////////////////////////////////////////////////////////////
+
   // Final view format
   ngModelCtrl.$formatters.push(value => value && +value);
 
@@ -175,7 +173,10 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
     return Math.floor(value / uiSliderThumbCtrl.step) * uiSliderThumbCtrl.step;
   });
   ngModelCtrl.$formatters.push(function stepValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value) && value !== Math.floor(value / uiSliderThumbCtrl.step) * uiSliderThumbCtrl.step) {
+    if (!ngModelCtrl.$isEmpty(value)
+      && angular.isDefined(uiSliderThumbCtrl.step)
+      && value !== Math.floor(value / uiSliderThumbCtrl.step) * uiSliderThumbCtrl.step)
+    {
       ngModelCtrl.$setValidity('step', false);
       return undefined;
     } else {
@@ -192,7 +193,10 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
     return Math.min(value, uiSliderThumbCtrl.max);
   });
   ngModelCtrl.$formatters.push(function maxValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value) && value > uiSliderThumbCtrl.max) {
+    if (!ngModelCtrl.$isEmpty(value)
+      && angular.isDefined(uiSliderThumbCtrl.max)
+      && value > uiSliderThumbCtrl.max)
+    {
       ngModelCtrl.$setValidity('max', false);
       return undefined;
     } else {
@@ -200,18 +204,71 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
       return value;
     }
   });
+  //ngModelCtrl.$formatters.push((value) => {
+  //  console.log(value);
+  //  return value;
+  //})
 
-  // Checks that it's more then the minimum
+  // Checks that it's more then the thumb minimum
   ngModelCtrl.$parsers.push(function minParser(value) {
     ngModelCtrl.$setValidity('min', true);
     return Math.max(value, uiSliderThumbCtrl.min);
   });
   ngModelCtrl.$formatters.push(function minValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value) && value < uiSliderThumbCtrl.min) {
+    if (!ngModelCtrl.$isEmpty(value)
+      && angular.isDefined(uiSliderThumbCtrl.min)
+      && value < uiSliderThumbCtrl.min)
+    {
       ngModelCtrl.$setValidity('min', false);
       return undefined;
     } else {
       ngModelCtrl.$setValidity('min', true);
+      return value;
+    }
+  });
+
+
+  // Checks that it's more then the parent slider minimum
+  ngModelCtrl.$parsers.push(function parentStepParser(value) {
+    ngModelCtrl.$setValidity('parent-step', true);
+    return Math.floor(value / uiSliderCtrl.step) * uiSliderCtrl.step;
+  });
+  ngModelCtrl.$formatters.push(function parentStepValidator(value) {
+    if (!ngModelCtrl.$isEmpty(value) && value !== Math.floor(value / uiSliderCtrl.step) * uiSliderCtrl.step) {
+      ngModelCtrl.$setValidity('parent-step', false);
+      return undefined;
+    } else {
+      ngModelCtrl.$setValidity('parent-step', true);
+      return value;
+    }
+  });
+
+  // Checks that it's more then the parent slider minimum
+  ngModelCtrl.$parsers.push(function parentMaxParser(value) {
+    ngModelCtrl.$setValidity('parent-max', true);
+    return Math.max(value, uiSliderCtrl.max);
+  });
+  ngModelCtrl.$formatters.push(function parentMaxValidator(value) {
+    if (!ngModelCtrl.$isEmpty(value) && value > uiSliderCtrl.max) {
+      ngModelCtrl.$setValidity('parent-max', false);
+      return undefined;
+    } else {
+      ngModelCtrl.$setValidity('parent-max', true);
+      return value;
+    }
+  });
+
+  // Checks that it's more then the parent slider minimum
+  ngModelCtrl.$parsers.push(function parentMinParser(value) {
+    ngModelCtrl.$setValidity('parent-min', true);
+    return Math.max(value, uiSliderCtrl.min);
+  });
+  ngModelCtrl.$formatters.push(function parentMinValidator(value) {
+    if (!ngModelCtrl.$isEmpty(value) && value < uiSliderCtrl.min) {
+      ngModelCtrl.$setValidity('parent-min', false);
+      return undefined;
+    } else {
+      ngModelCtrl.$setValidity('parent-min', true);
       return value;
     }
   });
@@ -226,6 +283,7 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
       return void 0;
     }
   });
+
 }
 
 function hasChangedValue(newVal, oldVal) {

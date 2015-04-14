@@ -80,17 +80,10 @@ describe('uiSliderThumb', function () {
       this.uiSliderThumbCtrl = this.element.isolateScope().uiSliderThumbCtrl;
     });
 
-    it('should initialize with min 0, max 100, step 1', function () {
-      expect(this.uiSliderThumbCtrl.min).to.equal(0);
-      expect(this.uiSliderThumbCtrl.max).to.equal(100);
-      expect(this.uiSliderThumbCtrl.step).to.equal(1);
-    });
-
-    it('should stay with min 0, max 100, step 1', function () {
-      this.$rootScope.$digest();
-      expect(this.uiSliderThumbCtrl.min).to.equal(0);
-      expect(this.uiSliderThumbCtrl.max).to.equal(100);
-      expect(this.uiSliderThumbCtrl.step).to.equal(1);
+    it('should initialize with no limitation', function () {
+      expect(this.uiSliderThumbCtrl.min, 'min').to.be.undefined;
+      expect(this.uiSliderThumbCtrl.max, 'max').to.be.undefined;
+      expect(this.uiSliderThumbCtrl.step, 'step').to.be.undefined;
     });
 
     it('should change to min -10, max 10, step 5', function () {
@@ -109,40 +102,7 @@ describe('uiSliderThumb', function () {
       this.raf = sinon.stub(window, "requestAnimationFrame", (fn) => fn());
     });
 
-    describe('when changing', function () {
-      beforeEach(function () {
-        const uiSliderElement = this.compileSliderContent(
-          '<ui-slider-thumb ng-model="foo"></ui-slider-thumb>'
-        )(this.$rootScope);
-        this.element = uiSliderElement.children(0);
-        this.uiSliderThumbCtrl = this.element.isolateScope().uiSliderThumbCtrl;
-      });
-
-      it('should render at 0 if 50', function () {
-
-        expect(this.element.css('left')).to.equal('');
-
-        this.$rootScope.foo = 50;
-        this.$rootScope.$digest();
-
-        expect(this.raf).to.have.been.called;
-        expect(this.element.css('left')).to.equal('50%');
-      });
-
-      it('should render at 0 if null', function () {
-
-        expect(this.element.css('left')).to.equal('');
-
-        this.$rootScope.foo = null;
-        this.$rootScope.$digest();
-
-        expect(this.raf).to.have.been.called;
-
-        expect(this.element.css('left')).to.equal('0%');
-      });
-    });
-
-    describe('with dynamic thumb limitations', function () {
+    describe('limitations', function () {
       beforeEach(function () {
         const uiSliderElement = this.compileSliderContent(
           '<ui-slider-thumb' +
@@ -168,16 +128,17 @@ describe('uiSliderThumb', function () {
         expect(this.ngCtrl.$name).to.be.equal('fooName');
       });
 
-      it('should define model values at 0', function () {
-        this.$rootScope.foo = 0;
-        this.$rootScope.$digest();
+      describe('default (min 0, max 100, step 1)', function () {
 
-        expect(this.element).to.be.pristine.and.to.be.valid;
-        expect(this.ngCtrl.$viewValue, '$viewValue').to.equal(0);
-        expect(this.ngCtrl.$modelValue, '$modelValue').to.equal(0);
-      });
+        it('should be valid at 0', function () {
+          this.$rootScope.foo = 0;
+          this.$rootScope.$digest();
 
-      describe('default invalid states', function(){
+          expect(this.element).to.be.pristine.and.to.be.valid;
+          expect(this.ngCtrl.$viewValue, '$viewValue').to.equal(0);
+          expect(this.ngCtrl.$modelValue, '$modelValue').to.equal(0);
+        });
+
         it('should be invalid \'cause not a number', function () {
           this.$rootScope.foo = '1';
           this.$rootScope.$digest();
@@ -186,51 +147,215 @@ describe('uiSliderThumb', function () {
           expect(this.element).to.have.class('ng-invalid-number');
         });
 
-        it('should be invalid \'cause below the min', function () {
+        it('should be invalid \'cause below the parent min', function () {
           this.$rootScope.foo = -1;
           this.$rootScope.$digest();
+
+          expect(this.element).to.be.pristine.and.to.be.invalid;
+          expect(this.element).to.have.class('ng-invalid-parent-min');
+        });
+
+        it('should be invalid \'cause above the parent max', function () {
+          this.$rootScope.foo = 101;
+          this.$rootScope.$digest();
+
+          expect(this.element).to.be.pristine.and.to.be.invalid;
+          expect(this.element).to.have.class('ng-invalid-parent-max');
+        });
+
+        it('should be invalid \'cause wrong the parent step', function () {
+          this.$rootScope.foo = 1.1;
+          this.$rootScope.$digest();
+
+          expect(this.element).to.be.pristine.and.to.be.invalid;
+          expect(this.element).to.have.class('ng-invalid-parent-step');
+        });
+      });
+
+      describe('min 10, max 20, step 2', function () {
+
+        beforeEach(function () {
+          this.$rootScope._min = 10;
+          this.$rootScope._max = 20;
+          this.$rootScope._step = 2;
+          this.$rootScope.$digest();
+        });
+
+        it('should be valid at 10', function () {
+          this.$rootScope.foo = 10;
+          this.$rootScope.$digest();
+
+          expect(this.element).to.be.pristine.and.to.be.valid;
+          expect(this.ngCtrl.$viewValue, '$viewValue').to.equal(10);
+          expect(this.ngCtrl.$modelValue, '$modelValue').to.equal(10);
+        });
+
+        it('should be invalid \'cause below the min', function () {
+          this.$rootScope.foo = 0;
+          this.$rootScope.$apply();
 
           expect(this.element).to.be.pristine.and.to.be.invalid;
           expect(this.element).to.have.class('ng-invalid-min');
         });
 
-        it('should be invalid \'cause above the max', function () {
-          this.$rootScope.foo = 101;
-          this.$rootScope.$digest();
+        it('should be invalid \'cause below the parent min', function () {
+          this.$rootScope.foo = -1;
+          this.$rootScope.$apply();
+
+          expect(this.element).to.be.pristine.and.to.be.invalid;
+          expect(this.element).to.have.class('ng-invalid-parent-min');
+        });
+
+        it('should be invalid \'cause below the max', function () {
+          this.$rootScope.foo = 21;
+          this.$rootScope.$apply();
 
           expect(this.element).to.be.pristine.and.to.be.invalid;
           expect(this.element).to.have.class('ng-invalid-max');
         });
 
+        it('should be invalid \'cause below the parent max', function () {
+          this.$rootScope.foo = 101;
+          this.$rootScope.$apply();
+
+          expect(this.element).to.be.pristine.and.to.be.invalid;
+          expect(this.element).to.have.class('ng-invalid-parent-max');
+        });
+
         it('should be invalid \'cause wrong the step', function () {
-          this.$rootScope.foo = 1.1;
+          this.$rootScope.foo = 11;
           this.$rootScope.$digest();
 
           expect(this.element).to.be.pristine.and.to.be.invalid;
           expect(this.element).to.have.class('ng-invalid-step');
         });
-      });
 
-
-      describe('custom invalid states', function(){
-
-        beforeEach(function () {
-          this.$rootScope.min = 10;
-          this.$rootScope.max = 20;
-          this.$rootScope.step = 1;
-          this.$rootScope.$digest();
-        });
-
-        it('should be invalid \'cause below the min', function () {
-          this.$rootScope.foo = 0;
+        it('should be invalid \'cause wrong the parent step', function () {
+          this.$rootScope.foo = 11.1;
           this.$rootScope.$digest();
 
           expect(this.element).to.be.pristine.and.to.be.invalid;
-          expect(this.element).to.have.class('ng-invalid-min');
+          expect(this.element).to.have.class('ng-invalid-parent-step');
         });
       })
 
     });
 
+    describe('position', function () {
+      beforeEach(function () {
+        const uiSliderElement = this.$compile(
+          `<ui-slider
+            min="{{ _parentMin }}" max="{{ _parentMax }}">
+             <ui-slider-thumb ng-model="foo"></ui-slider-thumb>
+           </ui-slider>`)(this.$rootScope);
+        this.$rootScope.$digest();
+        this.element = uiSliderElement.children(0);
+        this.uiSliderThumbCtrl = this.element.isolateScope().uiSliderThumbCtrl;
+      });
+
+      describe('between 0 and 100', function () {
+
+
+        it('should render at "0%" if 0', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = 0;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('0%');
+        });
+
+        it('should render at "100%" if 0', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = 100;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('100%');
+        });
+
+        it('should render at "50%" if 50', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = 50;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('50%');
+        });
+
+        it('should render at "" if undefined', function () {
+
+          expect(this.element.css('left')).to.equal('');
+
+          expect(this.$rootScope.foo).to.be.undefined;
+
+          expect(this.raf).to.have.been.called;
+
+          expect(this.element.css('left')).to.equal('');
+        });
+
+        it('should render at "" if 1000', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = 1000;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('');
+        });
+
+        it('should render at "" if -1', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = -1;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('');
+        });
+
+      });
+
+      describe('between -50 and 50', function () {
+        beforeEach(function () {
+          this.$rootScope._parentMin = -50;
+          this.$rootScope._parentMax = 50;
+          this.$rootScope.$digest();
+        });
+
+        it('should render at "0%" if undefined', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          expect(this.$rootScope.foo).to.be.undefined;
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('');
+        });
+
+        it('should render at "0%" if -50', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = -50;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('0%');
+        });
+
+        it('should render at "100%" if 50', function () {
+          expect(this.element.css('left')).to.equal('');
+
+          this.$rootScope.foo = 50;
+          this.$rootScope.$digest();
+
+          expect(this.raf).to.have.been.called;
+          expect(this.element.css('left')).to.equal('100%');
+        });
+      });
+
+    })
   })
 });
