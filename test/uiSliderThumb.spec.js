@@ -119,7 +119,7 @@ describe('uiSliderThumb', function () {
           '<ui-slider-thumb' +
           ' name="fooName "' +
           ' ng-model="foo"' +
-          ' ng-min="{{ _min }}" ng-max="{{ _max}}" ng-step="{{ _step}}">' +
+          ' min="{{ _min }}" max="{{ _max}}" step="{{ _step}}">' +
           '</ui-slider-thumb>'
         )(this.$rootScope);
         this.$rootScope.$digest();
@@ -187,7 +187,6 @@ describe('uiSliderThumb', function () {
         it('should be valid at 10', function () {
           this.$rootScope.foo = 10;
           this.$rootScope.$digest();
-
           expect(this.element).to.be.pristine.and.to.be.valid;
           expect(this.ngCtrl.$viewValue, '$viewValue').to.equal(10);
           expect(this.ngCtrl.$modelValue, '$modelValue').to.equal(10);
@@ -195,7 +194,7 @@ describe('uiSliderThumb', function () {
 
         it('should be invalid \'cause below the min', function () {
           this.$rootScope.foo = 0;
-          this.$rootScope.$apply();
+          this.$rootScope.$digest();
 
           expect(this.element).to.be.pristine.and.to.be.invalid;
           expect(this.element).to.have.class('ng-invalid-min');
@@ -248,7 +247,7 @@ describe('uiSliderThumb', function () {
       beforeEach(function () {
         const uiSliderElement = this.$compile(
           `<ui-slider
-            ng-min="{{ _parentMin }}" ng-max="{{ _parentMax }}">
+            min="{{ _parentMin }}" max="{{ _parentMax }}">
              <ui-slider-thumb ng-model="foo"></ui-slider-thumb>
            </ui-slider>`)(this.$rootScope);
         this.element = uiSliderElement.children(0);
@@ -305,7 +304,7 @@ describe('uiSliderThumb', function () {
           this.$rootScope.$digest();
 
           expect(this.raf).to.have.been.calledOnce;
-          expect(this.element.css('left')).to.equal('');
+          expect(this.element.css('left')).to.equal('100%');
         });
 
         it('should render at "" if -1', function () {
@@ -315,7 +314,7 @@ describe('uiSliderThumb', function () {
           this.$rootScope.$digest();
 
           expect(this.raf).to.have.been.calledOnce;
-          expect(this.element.css('left')).to.equal('');
+          expect(this.element.css('left')).to.equal('0%');
         });
 
       });
@@ -356,38 +355,6 @@ describe('uiSliderThumb', function () {
         });
       });
 
-      describe('parent ui-slider limitation change', function(){
-
-        beforeEach(function () {
-          this.ngCtrl = this.element.data('$ngModelController');
-
-          this.$rootScope._parentMin = 0;
-          this.$rootScope._parentMax = 4;
-
-          this.$rootScope.foo = 1;
-
-          this.$rootScope.$digest();
-          expect(this.raf).to.have.been.calledOnce;
-          expect(this.$rootScope.foo).to.be.equal(1);
-          expect(this.ngCtrl.$viewValue).to.be.equal(1);
-          expect(this.ngCtrl.$viewValue).to.be.equal(1);
-          expect(this.element.css('left')).to.equal('25%');
-
-        });
-
-        it('should render at "0%" if undefined', function () {
-
-          this.$rootScope._parentMax = 6;
-
-          this.$rootScope.$digest();
-          expect(this.ngCtrl.$viewValue).to.be.equal(1);
-          expect(this.ngCtrl.$viewValue).to.be.equal(1);
-          expect(this.raf).to.have.been.calledTwice;
-          expect(this.element.css('left')).to.equal('33.3333%');
-
-        });
-
-      })
     })
   })
 });

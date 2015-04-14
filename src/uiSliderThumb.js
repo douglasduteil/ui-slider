@@ -57,9 +57,6 @@ export default class uiSliderThumb {
     this._trackSize = track_bb.width;
   }
 
-  formatValue(val) {
-    return _formatValue(val, this.min, this.max, this.step);
-  }
 }
 
 function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl]) {
@@ -199,7 +196,6 @@ function _observeUiSliderThumbAttributes({
   // TODO(douglasduteil): [REFACTO] unify observed attrs with change event broadcast
   const OBBSERVED_ATTRS = {
     max: (val) => {
-      dump('booooo', val)
       if (angular.isDefined(val) && !angular.isNumber(val)) {
         val = parseFloat(val, 10);
       }
@@ -209,7 +205,6 @@ function _observeUiSliderThumbAttributes({
       ngModelCtrl.$validate();
     },
     min: (val) => {
-      dump('booooo', val)
       if (angular.isDefined(val) && !angular.isNumber(val)) {
         val = parseFloat(val, 10);
       }
@@ -277,9 +272,14 @@ function _formatNgModelToNumberType({
       return Math.max(value, uiSliderCtrl.min);
     });
 
-    if (angular.isDefined(iAttrs.min) || iAttrs.ngMin) {
+    ngModelCtrl.$validators.parentMin = function parentMinValidator(value) {
+      return ngModelCtrl.$isEmpty(value) || value >= uiSliderCtrl.min;
+    };
+
+    if (angular.isDefined(iAttrs.min) || angular.isDefined(iAttrs.ngMin)) {
 
       ngModelCtrl.$parsers.push(function parseWithMin(value) {
+
         if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.min)) { return value; }
         //console.log('parseWithParentMin', value);
         return Math.max(value, uiSliderThumbCtrl.min);
@@ -312,7 +312,11 @@ function _formatNgModelToNumberType({
       return Math.min(value, uiSliderCtrl.max);
     });
 
-    if (angular.isDefined(iAttrs.max) || iAttrs.ngMax) {
+    ngModelCtrl.$validators.parentMax = function maxValidator(value) {
+      return ngModelCtrl.$isEmpty(value) || value <= uiSliderCtrl.max;
+    };
+
+    if (angular.isDefined(iAttrs.max) || angular.isDefined(iAttrs.ngMax)) {
 
       ngModelCtrl.$parsers.push(function parseWithMax(value) {
         if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.max)) { return value; }
@@ -332,6 +336,14 @@ function _formatNgModelToNumberType({
           || value <= uiSliderThumbCtrl.max;
       };
     }
+
+    //
+
+    ngModelCtrl.$validators.parentStep = function maxValidator(value) {
+      const step = uiSliderCtrl.step;
+      return ngModelCtrl.$isEmpty(value)
+        ||  value === Math.floor(value / step) * step
+    };
 
     if (angular.isDefined(iAttrs.step)) {
       ngModelCtrl.$validators.step = function stepValidator(value) {
