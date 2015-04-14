@@ -14,15 +14,16 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
   selector: COMPONENT_SELECTOR
 })
 export default class uiSliderThumb {
-  constructor($element, $attrs, $scope, $swipe) {
+  constructor($injector, $element, $attrs, $scope, $swipe) {
 
+    this.$injector = $injector;
     this.$element = $element;
 
     this._lastPos = NaN;
     // TODO(douglasduteil): use window.performance.now();
     this._time = +new Date();
 
-    this.setupAttrsObservers = _setupAttrsObservers.bind(this, $element, $swipe, $scope)
+    this.setupAttrsObservers = _setupMouseEvent.bind(this, $element, $swipe, $scope)
   }
 
   updateThumbPosition(coord) {
@@ -34,9 +35,9 @@ export default class uiSliderThumb {
     this._lastPos = coord.x;
     const normalizedPos =
       (this._lastPos - this._trackOrigine) / this._trackSize;
-    const projectedValue = this.min + normalizedPos * (this.max - this.min);
-    const formatedValue = _formatValue(projectedValue, this.min, this.max, this.step);
-    return parseFloat(formatedValue.toFixed(5));
+    //const projectedValue = this.min + normalizedPos * (this.max - this.min);
+    //const formatedValue = _formatValue(projectedValue, this.min, this.max, this.step);
+    return parseFloat(normalizedPos.toFixed(5));
 
   }
 
@@ -76,11 +77,19 @@ function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl])
     uiSliderThumbCtrl
   });
 
-  _observeUiSliderThumbAttributes(iAttrs, uiSliderThumbCtrl);
-
+  _observeUiSliderThumbAttributes({
+    iAttrs,
+    ngModelCtrl,
+    uiSliderThumbCtrl
+  });
+  _formatNgModelToNumberType({
+    iAttrs,
+    uiSliderCtrl,
+    uiSliderThumbCtrl
+  })(ngModelCtrl)
 }
 
-function _setupAttrsObservers($element, $swipe, $scope, {uiSliderCtrl, uiSliderThumbCtrl, ngModelCtrl}) {
+function _setupMouseEvent($element, $swipe, $scope, {uiSliderCtrl, uiSliderThumbCtrl, ngModelCtrl}) {
 
   var hasMultipleThumb = 1 < $element.parent()[0].querySelectorAll(COMPONENT_SELECTOR).length;
 
@@ -121,14 +130,18 @@ function _setupAttrsObservers($element, $swipe, $scope, {uiSliderCtrl, uiSliderT
 
   function _projectCoordToModel(coord) {
     const thumbValue = uiSliderThumbCtrl.updateThumbPosition(coord);
-    ngModelCtrl.$setViewValue(thumbValue);
+    const min = uiSliderCtrl.min;
+    const max = uiSliderCtrl.max;
+    const projectedValue = min + thumbValue * (max - min);
+    ngModelCtrl.$setViewValue(projectedValue);
+    //ngModelCtrl.$commitViewValue();
+
     if (!$scope.$root.$$phase) {
       $scope.$root.$apply();
     }
     ngModelCtrl.$render();
   }
 }
-
 
 function _formatValue(value, min = 0, max = 100, step = 1 / 100000) {
   let formattedValue = value;
@@ -155,134 +168,17 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderCtrl, uiSliderThumbCtrl
   }
 
   function drawFromTheModelValue() {
-    var thumbLeftPosition = (ngModelCtrl.$viewValue - uiSliderCtrl.min )
-      / (uiSliderCtrl.max - uiSliderCtrl.min) * 100;
+    if (ngModelCtrl.$isEmpty(ngModelCtrl.$viewValue)) { return; }
+    let value = ngModelCtrl.$viewValue;
+    const min = uiSliderCtrl.min;
+    const max = uiSliderCtrl.max;
+    const step =  angular.isDefined(uiSliderThumbCtrl.step) ? uiSliderThumbCtrl.step : uiSliderCtrl.step;
+    value = angular.isDefined(uiSliderThumbCtrl.min) ? Math.max(value, uiSliderThumbCtrl.min) : value;
+    value = angular.isDefined(uiSliderThumbCtrl.max) ? Math.min(value, uiSliderThumbCtrl.max) : value;
+    let thumbLeftPosition = (value - min) / (max - min) * 100;
+    thumbLeftPosition = _formatValue(thumbLeftPosition, 0, 100, step);
     $element.css('left', thumbLeftPosition + '%');
   }
-
-  ////////////////////////////////////////////////////////////////////
-  // FORMATTING
-  ////////////////////////////////////////////////////////////////////
-
-  // Final view format
-  ngModelCtrl.$formatters.push(value => value && +value);
-
-  // Checks that it's on the step
-  ngModelCtrl.$parsers.push(function stepParser(value) {
-    ngModelCtrl.$setValidity('step', true);
-    return Math.floor(value / uiSliderThumbCtrl.step) * uiSliderThumbCtrl.step;
-  });
-  ngModelCtrl.$formatters.push(function stepValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value)
-      && angular.isDefined(uiSliderThumbCtrl.step)
-      && value !== Math.floor(value / uiSliderThumbCtrl.step) * uiSliderThumbCtrl.step)
-    {
-      ngModelCtrl.$setValidity('step', false);
-      return undefined;
-    } else {
-      ngModelCtrl.$setValidity('step', true);
-      return value;
-    }
-  });
-  ////
-
-
-  // Checks that it's less then the maximum
-  ngModelCtrl.$parsers.push(function maxParser(value) {
-    ngModelCtrl.$setValidity('max', true);
-    return Math.min(value, uiSliderThumbCtrl.max);
-  });
-  ngModelCtrl.$formatters.push(function maxValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value)
-      && angular.isDefined(uiSliderThumbCtrl.max)
-      && value > uiSliderThumbCtrl.max)
-    {
-      ngModelCtrl.$setValidity('max', false);
-      return undefined;
-    } else {
-      ngModelCtrl.$setValidity('max', true);
-      return value;
-    }
-  });
-  //ngModelCtrl.$formatters.push((value) => {
-  //  console.log(value);
-  //  return value;
-  //})
-
-  // Checks that it's more then the thumb minimum
-  ngModelCtrl.$parsers.push(function minParser(value) {
-    ngModelCtrl.$setValidity('min', true);
-    return Math.max(value, uiSliderThumbCtrl.min);
-  });
-  ngModelCtrl.$formatters.push(function minValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value)
-      && angular.isDefined(uiSliderThumbCtrl.min)
-      && value < uiSliderThumbCtrl.min)
-    {
-      ngModelCtrl.$setValidity('min', false);
-      return undefined;
-    } else {
-      ngModelCtrl.$setValidity('min', true);
-      return value;
-    }
-  });
-
-
-  // Checks that it's more then the parent slider minimum
-  ngModelCtrl.$parsers.push(function parentStepParser(value) {
-    ngModelCtrl.$setValidity('parent-step', true);
-    return Math.floor(value / uiSliderCtrl.step) * uiSliderCtrl.step;
-  });
-  ngModelCtrl.$formatters.push(function parentStepValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value) && value !== Math.floor(value / uiSliderCtrl.step) * uiSliderCtrl.step) {
-      ngModelCtrl.$setValidity('parent-step', false);
-      return undefined;
-    } else {
-      ngModelCtrl.$setValidity('parent-step', true);
-      return value;
-    }
-  });
-
-  // Checks that it's more then the parent slider minimum
-  ngModelCtrl.$parsers.push(function parentMaxParser(value) {
-    ngModelCtrl.$setValidity('parent-max', true);
-    return Math.max(value, uiSliderCtrl.max);
-  });
-  ngModelCtrl.$formatters.push(function parentMaxValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value) && value > uiSliderCtrl.max) {
-      ngModelCtrl.$setValidity('parent-max', false);
-      return undefined;
-    } else {
-      ngModelCtrl.$setValidity('parent-max', true);
-      return value;
-    }
-  });
-
-  // Checks that it's more then the parent slider minimum
-  ngModelCtrl.$parsers.push(function parentMinParser(value) {
-    ngModelCtrl.$setValidity('parent-min', true);
-    return Math.max(value, uiSliderCtrl.min);
-  });
-  ngModelCtrl.$formatters.push(function parentMinValidator(value) {
-    if (!ngModelCtrl.$isEmpty(value) && value < uiSliderCtrl.min) {
-      ngModelCtrl.$setValidity('parent-min', false);
-      return undefined;
-    } else {
-      ngModelCtrl.$setValidity('parent-min', true);
-      return value;
-    }
-  });
-
-  // First check that a number is used
-  ngModelCtrl.$formatters.push(function numberValidator(value) {
-    if (ngModelCtrl.$isEmpty(value) || angular.isNumber(value)) {
-      ngModelCtrl.$setValidity('number', true);
-      return value;
-    } else {
-      ngModelCtrl.$setValidity('number', false);
-      return void 0;
-    }
-  });
 
 }
 
@@ -294,21 +190,42 @@ function hasChangedValue(newVal, oldVal) {
 
 //
 
-function _observeUiSliderThumbAttributes(iAttrs, uiSliderThumbCtrl) {
+function _observeUiSliderThumbAttributes({
+  iAttrs,
+  ngModelCtrl,
+  uiSliderThumbCtrl
+  }) {
 
   // TODO(douglasduteil): [REFACTO] unify observed attrs with change event broadcast
   const OBBSERVED_ATTRS = {
-    max: (newValue) => {
-      if (isNaN(+newValue) || newValue === '') { return; }
-      uiSliderThumbCtrl.max = +newValue;
+    max: (val) => {
+      dump('booooo', val)
+      if (angular.isDefined(val) && !angular.isNumber(val)) {
+        val = parseFloat(val, 10);
+      }
+      uiSliderThumbCtrl.max =
+        angular.isNumber(val)
+        && !isNaN(val) ? val : undefined;
+      ngModelCtrl.$validate();
     },
-    min: (newValue) => {
-      if (isNaN(+newValue) || newValue === '') { return; }
-      uiSliderThumbCtrl.min = +newValue;
+    min: (val) => {
+      dump('booooo', val)
+      if (angular.isDefined(val) && !angular.isNumber(val)) {
+        val = parseFloat(val, 10);
+      }
+      uiSliderThumbCtrl.min =
+        angular.isNumber(val)
+        && !isNaN(val) ? val : undefined;
+      ngModelCtrl.$validate();
     },
-    step: (newValue) => {
-      if (isNaN(+newValue) || newValue === '') { return; }
-      uiSliderThumbCtrl.step = +newValue;
+    step: (val) => {
+      if (angular.isDefined(val) && !angular.isNumber(val)) {
+        val = parseFloat(val, 10);
+      }
+      uiSliderThumbCtrl.step =
+        angular.isNumber(val)
+        && !isNaN(val) ? val : undefined;
+      ngModelCtrl.$validate();
     }
   };
 
@@ -317,4 +234,113 @@ function _observeUiSliderThumbAttributes(iAttrs, uiSliderThumbCtrl) {
     .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
     .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
 
+}
+
+function _formatNgModelToNumberType({
+  iAttrs,
+  uiSliderCtrl,
+  uiSliderThumbCtrl
+  }) {
+  return function ngModelFormatters(ngModelCtrl) {
+
+    ngModelCtrl.$parsers.push(function parseAsNumber(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return null; }
+      //console.log('parseAsNumber', value);
+      if (angular.isNumber(value)) {return parseFloat(value);}
+      return undefined;
+    });
+
+    ngModelCtrl.$formatters.push(function (value) {
+      if (!ngModelCtrl.$isEmpty(value)) {
+        if (!angular.isNumber(value)) {
+          // TODO(douglasduteil): use the angular $ngModelMinErr
+          // throw $ngModelMinErr('numfmt', 'Expected `{0}` to be a number', value);
+
+          throw new TypeError(`Expected "${value}" to be a number`);
+        }
+        value = Number(value);
+      }
+      return value;
+    });
+
+    //
+
+    ngModelCtrl.$parsers.push(function parseWithParentMin(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return value; }
+      //console.log('parseWithParentMin', value);
+      return Math.max(value, uiSliderCtrl.min);
+    });
+
+    ngModelCtrl.$formatters.push(function parseWithParentMin(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return value; }
+      //console.log('parseWithParentMin', value);
+      return Math.max(value, uiSliderCtrl.min);
+    });
+
+    if (angular.isDefined(iAttrs.min) || iAttrs.ngMin) {
+
+      ngModelCtrl.$parsers.push(function parseWithMin(value) {
+        if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.min)) { return value; }
+        //console.log('parseWithParentMin', value);
+        return Math.max(value, uiSliderThumbCtrl.min);
+      });
+
+      ngModelCtrl.$formatters.push(function parseWithMin(value) {
+        if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.min)) { return value; }
+        //console.log('parseWithParentMin', value);
+        return Math.max(value, uiSliderThumbCtrl.min);
+      });
+
+      ngModelCtrl.$validators.min = function minValidator(value) {
+        return ngModelCtrl.$isEmpty(value)
+          || angular.isUndefined(uiSliderThumbCtrl.min)
+          || value >= uiSliderThumbCtrl.min;
+      };
+    }
+
+    //
+
+    ngModelCtrl.$parsers.push(function parseWithParentMax(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return value; }
+      //console.log('parseWithParentMin', value);
+      return Math.min(value, uiSliderCtrl.max);
+    });
+
+    ngModelCtrl.$formatters.push(function parseWithParentMax(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return value; }
+      //console.log('parseWithParentMin', value);
+      return Math.min(value, uiSliderCtrl.max);
+    });
+
+    if (angular.isDefined(iAttrs.max) || iAttrs.ngMax) {
+
+      ngModelCtrl.$parsers.push(function parseWithMax(value) {
+        if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.max)) { return value; }
+        //console.log('parseWithParentMin', value);
+        return Math.min(value, uiSliderThumbCtrl.max);
+      });
+
+      ngModelCtrl.$formatters.push(function parseWithMax(value) {
+        if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.max)) { return value; }
+        //console.log('parseWithParentMin', value);
+        return Math.min(value, uiSliderThumbCtrl.max);
+      });
+
+      ngModelCtrl.$validators.max = function maxValidator(value) {
+        return ngModelCtrl.$isEmpty(value)
+          || angular.isUndefined(uiSliderThumbCtrl.max)
+          || value <= uiSliderThumbCtrl.max;
+      };
+    }
+
+    if (angular.isDefined(iAttrs.step)) {
+      ngModelCtrl.$validators.step = function stepValidator(value) {
+        const step = uiSliderThumbCtrl.step;
+        return ngModelCtrl.$isEmpty(value)
+          || angular.isUndefined(step)
+          || value === Math.floor(value / step) * step
+      };
+    }
+
+  }
 }
