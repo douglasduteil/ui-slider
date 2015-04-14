@@ -5,7 +5,7 @@ import 'angular-mocks';
 
 import {uiSliderModule} from '../index';
 
-describe('uiSliderRange', function () {
+describe.only('uiSliderRange', function () {
 
   beforeEach(function () {
     var suite = this;
@@ -91,6 +91,129 @@ describe('uiSliderRange', function () {
       this.$rootScope.$digest();
       expect(this.uiSliderRangeCtrl.min).to.equal(-10);
       expect(this.uiSliderRangeCtrl.max).to.equal(10);
+    });
+  });
+
+
+  describe('rendering', function () {
+
+    describe('between 0 and 100', function () {
+      beforeEach(function () {
+        const uiSliderElement = this.compileSliderContent(
+          '<ui-slider-range min="{{ _min }}" max="{{ _max}}"></ui-slider-range>'
+        )(this.$rootScope);
+        this.element = uiSliderElement.children(0);
+        this.uiSliderRangeCtrl = this.element.isolateScope().uiSliderRangeCtrl;
+        this.$rootScope.$digest();
+      });
+
+      it('should should render from "left : 0%" to "right: 0%"' +
+      ' when undefined', function () {
+        expect(this.uiSliderRangeCtrl.min).to.be.undefined;
+        expect(this.uiSliderRangeCtrl.max).to.be.undefined;
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('0%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('0%');
+      });
+
+      it('should should render from "left : 25%" to "right: 0%"' +
+      ' when { min : 25 }', function () {
+        this.uiSliderRangeCtrl.min = 25
+
+        this.uiSliderRangeCtrl.renderRangeChange();
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('25%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('0%');
+      });
+
+      it('should should render from "left : 0%" to "right: 25%"' +
+      ' when { max : 75 }', function () {
+        this.uiSliderRangeCtrl.max = 75
+
+        this.uiSliderRangeCtrl.renderRangeChange();
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('0%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('25%');
+      });
+
+      it('should should render from "left : 25%" to "right: 25%"' +
+      ' when { min : 25, max : 75 }', function () {
+        this.uiSliderRangeCtrl.min = 25
+        this.uiSliderRangeCtrl.max = 75
+
+        this.uiSliderRangeCtrl.renderRangeChange();
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('25%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('25%');
+      });
+    });
+
+    describe('between -50 and 50', function () {
+      beforeEach(function () {
+        const uiSliderElement = this.$compile(
+          `<ui-slider min="-50" max="50">
+             <ui-slider-range min="{{ _min }}" max="{{ _max}}"></ui-slider-range>
+           </ui-slider>`)(this.$rootScope);
+        this.element = uiSliderElement.children(0);
+        this.uiSliderRangeCtrl = this.element.isolateScope().uiSliderRangeCtrl;
+        this.$rootScope.$digest();
+      });
+
+      it('should should render from "left : 0%" to "right: 0%"' +
+      ' when undefined', function () {
+        expect(this.uiSliderRangeCtrl.min).to.be.undefined;
+        expect(this.uiSliderRangeCtrl.max).to.be.undefined;
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('0%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('0%');
+      });
+
+      it('should should render from "left : 25%" to "right: 0%"' +
+      ' when { min : -25 }', function () {
+        this.uiSliderRangeCtrl.min = -25
+
+        this.uiSliderRangeCtrl.renderRangeChange();
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('25%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('0%');
+      });
+
+      it('should should render from "left : 0%" to "right: 25%"' +
+      ' when { max : 25 }', function () {
+        this.uiSliderRangeCtrl.max = 25
+
+        this.uiSliderRangeCtrl.renderRangeChange();
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('0%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('25%');
+      });
+
+      it('should should render from "left : 25%" to "right: 25%"' +
+      ' when { min : -25, max : 25 }', function () {
+        this.uiSliderRangeCtrl.min = -25
+        this.uiSliderRangeCtrl.max = 25
+
+        this.uiSliderRangeCtrl.renderRangeChange();
+
+        expect(this.element.css('left'),
+          'Element left').to.equal('25%');
+        expect(this.element.css('right'),
+          'Element right').to.equal('25%');
+      });
     });
   });
 
