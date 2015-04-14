@@ -60,6 +60,7 @@ describe('uiSliderThumb', function () {
         '<div class="ui-slider-thumb"></div>'
       )(this.$rootScope);
       const element = uiSliderElement.children(0);
+
       expect(element.scope()).to.be.ok;
       expect(element.scope().uiSliderThumbCtrl).not.to.be.ok;
       expect(element.isolateScope()).not.to.be.ok;
