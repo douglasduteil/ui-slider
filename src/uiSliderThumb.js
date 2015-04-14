@@ -2,6 +2,11 @@
 
 import {Component, Template} from 'ng2in1';
 import angular from 'angular';
+import _ from 'lodash';
+
+import {
+  optimisticNumber
+  } from './util';
 
 // Get all the page.
 var HTML_ELEMENT = angular.element(document.body.parentElement);
@@ -193,41 +198,21 @@ function _observeUiSliderThumbAttributes({
   uiSliderThumbCtrl
   }) {
 
-  // TODO(douglasduteil): [REFACTO] unify observed attrs with change event broadcast
-  const OBBSERVED_ATTRS = {
-    max: (val) => {
-      if (angular.isDefined(val) && !angular.isNumber(val)) {
-        val = parseFloat(val, 10);
-      }
-      uiSliderThumbCtrl.max =
-        angular.isNumber(val)
-        && !isNaN(val) ? val : undefined;
-      ngModelCtrl.$validate();
-    },
-    min: (val) => {
-      if (angular.isDefined(val) && !angular.isNumber(val)) {
-        val = parseFloat(val, 10);
-      }
-      uiSliderThumbCtrl.min =
-        angular.isNumber(val)
-        && !isNaN(val) ? val : undefined;
-      ngModelCtrl.$validate();
-    },
-    step: (val) => {
-      if (angular.isDefined(val) && !angular.isNumber(val)) {
-        val = parseFloat(val, 10);
-      }
-      uiSliderThumbCtrl.step =
-        angular.isNumber(val)
-        && !isNaN(val) ? val : undefined;
-      ngModelCtrl.$validate();
-    }
-  };
+  const ATTRS_VM_KEYS = ['max', 'min', 'step'];
 
-  Object
-    .keys(OBBSERVED_ATTRS)
-    .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
-    .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
+  _(ATTRS_VM_KEYS)
+    .transform((observers, keyName) => {
+      observers[keyName] = _.partial(attrObserver, keyName);
+    }, {})
+    .forEach((attrAction, attrName) => iAttrs.$observe(attrName, attrAction))
+    .value()
+  ;
+  ////
+
+  function attrObserver(attrName, val) {
+    uiSliderThumbCtrl[attrName] = optimisticNumber(val);
+    ngModelCtrl.$validate();
+  }
 
 }
 

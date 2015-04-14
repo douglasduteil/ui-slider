@@ -82,9 +82,9 @@ describe('uiSliderThumb', function () {
 
     it('should initialize with no limitation', function () {
       this.$rootScope.$digest();
-      expect(this.uiSliderThumbCtrl.min, 'min').to.be.undefined;
-      expect(this.uiSliderThumbCtrl.max, 'max').to.be.undefined;
-      expect(this.uiSliderThumbCtrl.step, 'step').to.be.undefined;
+      expect(this.uiSliderThumbCtrl.min, 'min').to.be.equal(0);
+      expect(this.uiSliderThumbCtrl.max, 'max').to.be.equal(0);
+      expect(this.uiSliderThumbCtrl.step, 'step').to.be.equal(0);
     });
 
     it('should change to min -10, max 10, step 5', function () {
@@ -123,6 +123,7 @@ describe('uiSliderThumb', function () {
           ' min="{{ _min }}" max="{{ _max}}" step="{{ _step}}">' +
           '</ui-slider-thumb>'
         )(this.$rootScope);
+        this.$rootScope._step = 1;
         this.$rootScope.$digest();
         this.element = uiSliderElement.children(0);
         this.uiSliderThumbCtrl = this.element.isolateScope().uiSliderThumbCtrl;
