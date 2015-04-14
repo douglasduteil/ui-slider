@@ -10,7 +10,6 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
 @Component({
   link: uiSliderRangeLink,
   require: ['^uiSlider'],
-  scope: {min: '@', max: '@'},
   selector: 'ui-slider-range'
 })
 export default class uiSliderRange {
@@ -21,23 +20,25 @@ export default class uiSliderRange {
 
   }
 
-  formatMaxValue(newVal){
-    let displayed = angular.isDefined(this.$attrs.start) || angular.isDefined(this.$attrs.end);
-    let val = !isNaN(+newVal) ? +newVal : displayed ? 100 : 0;
-    val = (val - this.uiSliderCtrl.min ) / (this.uiSliderCtrl.max - this.uiSliderCtrl.min) * 100;
-    return val;
-    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.end + '])
-    // TODO force width 0 if (left + right === 100 )
+  renderRangeChange() {
+    // TODO(douglasduteil): use lodash partial...
+    const projectOnSliderCtrlLimits = (val) => {
+      return _projectToMinMaxSpace(val, this.uiSliderCtrl.min, this.uiSliderCtrl.max) * 100
+    };
 
+    // TODO(douglasduteil): [REFACTO]
+    const min = angular.isDefined(this.min) && angular.isDefined(this.$attrs.min)
+      ? this.min : this.uiSliderCtrl.min;
+    const max = angular.isDefined(this.max) && angular.isDefined(this.$attrs.max)
+      // HACK: the max is initialized at the min value too here...
+      ? this.max : this.uiSliderCtrl.max;
+    const left = projectOnSliderCtrlLimits(min);
+    const right = 100 - projectOnSliderCtrlLimits(max);
+
+    this.$element.css('left', left + '%');
+    this.$element.css('right', right + '%');
   }
 
-  formatMinValue(newVal){
-    let val = !isNaN(+newVal) ? +newVal : 0;
-    val = (val - this.uiSliderCtrl.min ) / (this.uiSliderCtrl.max - this.uiSliderCtrl.min) * 100;
-    return val;
-    // TODO add half of th width of the targeted thumb ([ng-model='+ iAttrs.$attr.start + '])
-    // TODO force width 0 if (left + right === 100 )
-  }
 }
 
 function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
@@ -52,13 +53,25 @@ function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
   ////////////////////////////////////////////////////////////////////
 
   const OBBSERVED_ATTRS = {
-    max: (newValue) => {
-      const maxVal = uiSliderRangeCtrl.formatMaxValue(newValue);
-      iElement.css('right', (100 - maxVal) + '%');
+    max: (val) => {
+      if (angular.isDefined(val) && !angular.isNumber(val)) {
+        val = parseFloat(val, 10);
+      }
+      uiSliderRangeCtrl.max =
+        angular.isNumber(val) && !isNaN(val)
+          ? val : undefined;
+
+      uiSliderRangeCtrl.renderRangeChange();
     },
-    min: (newValue) => {
-      const minVal = uiSliderRangeCtrl.formatMinValue(newValue);
-      iElement.css('left', (minVal) + '%');
+    min: (val) => {
+      if (angular.isDefined(val) && !angular.isNumber(val)) {
+        val = parseFloat(val, 10);
+      }
+      uiSliderRangeCtrl.min =
+        angular.isNumber(val) && !isNaN(val)
+          ? val : undefined;
+
+      uiSliderRangeCtrl.renderRangeChange();
     }
   };
 
@@ -69,3 +82,8 @@ function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
   ;
 
 }
+
+function _projectToMinMaxSpace(val, min, max) {
+  return (val - min ) / (max - min);
+}
+

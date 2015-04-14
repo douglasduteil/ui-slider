@@ -169,7 +169,7 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderCtrl, uiSliderThumbCtrl
     let value = ngModelCtrl.$viewValue;
     const min = uiSliderCtrl.min;
     const max = uiSliderCtrl.max;
-    const step =  angular.isDefined(uiSliderThumbCtrl.step) ? uiSliderThumbCtrl.step : uiSliderCtrl.step;
+    const step = angular.isDefined(uiSliderThumbCtrl.step) ? uiSliderThumbCtrl.step : uiSliderCtrl.step;
     value = angular.isDefined(uiSliderThumbCtrl.min) ? Math.max(value, uiSliderThumbCtrl.min) : value;
     value = angular.isDefined(uiSliderThumbCtrl.max) ? Math.min(value, uiSliderThumbCtrl.max) : value;
     let thumbLeftPosition = (value - min) / (max - min) * 100;
@@ -231,6 +231,7 @@ function _observeUiSliderThumbAttributes({
 
 }
 
+// TODO(douglasduteil): Create a format folder with the usual functions
 function _formatNgModelToNumberType({
   iAttrs,
   uiSliderCtrl,
@@ -250,7 +251,6 @@ function _formatNgModelToNumberType({
         if (!angular.isNumber(value)) {
           // TODO(douglasduteil): use the angular $ngModelMinErr
           // throw $ngModelMinErr('numfmt', 'Expected `{0}` to be a number', value);
-
           throw new TypeError(`Expected "${value}" to be a number`);
         }
         value = Number(value);
@@ -259,16 +259,14 @@ function _formatNgModelToNumberType({
     });
 
     //
-
+    // TODO(douglasduteil): MERGE STUFF UP DUDE !
     ngModelCtrl.$parsers.push(function parseWithParentMin(value) {
       if (ngModelCtrl.$isEmpty(value)) { return value; }
-      //console.log('parseWithParentMin', value);
       return Math.max(value, uiSliderCtrl.min);
     });
 
     ngModelCtrl.$formatters.push(function parseWithParentMin(value) {
       if (ngModelCtrl.$isEmpty(value)) { return value; }
-      //console.log('parseWithParentMin', value);
       return Math.max(value, uiSliderCtrl.min);
     });
 
@@ -279,15 +277,12 @@ function _formatNgModelToNumberType({
     if (angular.isDefined(iAttrs.min) || angular.isDefined(iAttrs.ngMin)) {
 
       ngModelCtrl.$parsers.push(function parseWithMin(value) {
-
         if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.min)) { return value; }
-        //console.log('parseWithParentMin', value);
         return Math.max(value, uiSliderThumbCtrl.min);
       });
 
       ngModelCtrl.$formatters.push(function parseWithMin(value) {
         if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.min)) { return value; }
-        //console.log('parseWithParentMin', value);
         return Math.max(value, uiSliderThumbCtrl.min);
       });
 
@@ -302,13 +297,11 @@ function _formatNgModelToNumberType({
 
     ngModelCtrl.$parsers.push(function parseWithParentMax(value) {
       if (ngModelCtrl.$isEmpty(value)) { return value; }
-      //console.log('parseWithParentMin', value);
       return Math.min(value, uiSliderCtrl.max);
     });
 
     ngModelCtrl.$formatters.push(function parseWithParentMax(value) {
       if (ngModelCtrl.$isEmpty(value)) { return value; }
-      //console.log('parseWithParentMin', value);
       return Math.min(value, uiSliderCtrl.max);
     });
 
@@ -320,13 +313,11 @@ function _formatNgModelToNumberType({
 
       ngModelCtrl.$parsers.push(function parseWithMax(value) {
         if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.max)) { return value; }
-        //console.log('parseWithParentMin', value);
         return Math.min(value, uiSliderThumbCtrl.max);
       });
 
       ngModelCtrl.$formatters.push(function parseWithMax(value) {
         if (ngModelCtrl.$isEmpty(value) || angular.isUndefined(uiSliderThumbCtrl.max)) { return value; }
-        //console.log('parseWithParentMin', value);
         return Math.min(value, uiSliderThumbCtrl.max);
       });
 
@@ -339,10 +330,20 @@ function _formatNgModelToNumberType({
 
     //
 
+    ngModelCtrl.$parsers.push(function parseWithParentMax(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return value; }
+      return Math.floor(value / uiSliderCtrl.step) * uiSliderCtrl.step;
+    });
+
+    ngModelCtrl.$formatters.push(function parseWithParentMax(value) {
+      if (ngModelCtrl.$isEmpty(value)) { return value; }
+      return Math.floor(value / uiSliderCtrl.step) * uiSliderCtrl.step;
+    });
+
     ngModelCtrl.$validators.parentStep = function maxValidator(value) {
       const step = uiSliderCtrl.step;
       return ngModelCtrl.$isEmpty(value)
-        ||  value === Math.floor(value / step) * step
+        || value === Math.floor(value / step) * step
     };
 
     if (angular.isDefined(iAttrs.step)) {
