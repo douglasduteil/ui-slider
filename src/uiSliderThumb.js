@@ -31,8 +31,7 @@ export default class uiSliderThumb {
     this.setupAttrsObservers = _setupMouseEvent.bind(this, $element, $swipe, $scope)
   }
 
-  updateThumbPosition(coord) {
-
+  getNormalizedThumbPosition(coord) {
     this._updateTrackLayoutData();
 
     // TODO(douglasduteil): use a composition flow
@@ -40,10 +39,7 @@ export default class uiSliderThumb {
     this._lastPos = coord.x;
     const normalizedPos =
       (this._lastPos - this._trackOrigine) / this._trackSize;
-    //const projectedValue = this.min + normalizedPos * (this.max - this.min);
-    //const formatedValue = _formatValue(projectedValue, this.min, this.max, this.step);
     return parseFloat(normalizedPos.toFixed(5));
-
   }
 
   _updateTrackLayoutData() {
@@ -131,7 +127,7 @@ function _setupMouseEvent($element, $swipe, $scope, {uiSliderCtrl, uiSliderThumb
   }
 
   function _projectCoordToModel(coord) {
-    const thumbValue = uiSliderThumbCtrl.updateThumbPosition(coord);
+    const thumbValue = uiSliderThumbCtrl.getNormalizedThumbPosition(coord);
     const min = uiSliderCtrl.min;
     const max = uiSliderCtrl.max;
     const projectedValue = min + thumbValue * (max - min);
