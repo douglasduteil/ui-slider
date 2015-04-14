@@ -17,7 +17,7 @@ var options = extend({
 module.exports = function (config) {
 
   config.set({
-    frameworks: ['mocha', 'chai', 'jspm'],
+    frameworks: ['mocha', 'chai', 'sinon-chai', 'jspm'],
     files: ['node_modules/babel-core/browser-polyfill.js'],
     reporters: ['mocha'],
     preprocessors: {

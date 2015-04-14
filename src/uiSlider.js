@@ -57,7 +57,8 @@ function _getDefaultEmptySliderHtmlTemple() {
 
 function _observeUiSliderAttributes(iAttrs, uiSliderCtrl) {
 
-  const OBBSERVED_ATTRS = {
+  // TODO(douglasduteil): [REFACTO] unify observed attrs with change event broadcast
+  const OBSERVED_ATTRS = {
     max: (newValue) => {
       if (isNaN(+newValue) || newValue === '') return;
       uiSliderCtrl.max = +newValue;
@@ -69,14 +70,13 @@ function _observeUiSliderAttributes(iAttrs, uiSliderCtrl) {
     },
     step: (newValue) => {
       if (isNaN(+newValue) || newValue === '') return;
-      newValue = +newValue;
       uiSliderCtrl.step = +newValue;
     }
   };
 
   Object
-    .keys(OBBSERVED_ATTRS)
-    .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
+    .keys(OBSERVED_ATTRS)
+    .map((attrName) => [OBSERVED_ATTRS[attrName], attrName])
     .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
   ;
 }

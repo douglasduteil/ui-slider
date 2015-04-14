@@ -10,7 +10,7 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
 @Component({
   link: uiSliderThumbLink,
   require: ['^uiSlider', 'ngModel'],
-  scope: {start: '@', end: '@'},
+  scope: { start: '@', end: '@' },
   selector: COMPONENT_SELECTOR
 })
 export default class uiSliderThumb {
@@ -56,8 +56,8 @@ export default class uiSliderThumb {
     this._trackSize = track_bb.width;
   }
 
-  formatValue(val){
-    return  _formatValue(val, this.min, this.max, this.step);
+  formatValue(val) {
+    return _formatValue(val, this.min, this.max, this.step);
   }
 }
 
@@ -77,61 +77,9 @@ function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl])
     ngModelCtrl
   });
 
-  uiSliderNgModel(ngModelCtrl, {$element: iElement, uiSliderThumbCtrl});
+  uiSliderNgModel(ngModelCtrl, { $element: iElement, uiSliderThumbCtrl });
 
-  ////////////////////////////////////////////////////////////////////
-  // OBSERVERS
-  ////////////////////////////////////////////////////////////////////
-
-  const OBBSERVED_ATTRS = {
-    max: (newValue) => {
-      newValue = +newValue;
-      const maxVal = !isNaN(newValue) ? newValue: uiSliderThumbCtrl.max;
-      if (hasChangedValue(maxVal, uiSliderThumbCtrl.max)) {
-        uiSliderThumbCtrl.max = maxVal;
-        ngModelCtrl.$setViewValue(
-          uiSliderThumbCtrl.formatValue(ngModelCtrl.$modelValue)
-        );
-      }
-    },
-    min: (newValue) => {
-      newValue = +newValue;
-      const minVal = !isNaN(newValue) ? newValue: uiSliderThumbCtrl.mi;
-      if (hasChangedValue(minVal, uiSliderThumbCtrl.min)) {
-        uiSliderThumbCtrl.min = minVal;
-        ngModelCtrl.$setViewValue(
-          uiSliderThumbCtrl.formatValue(ngModelCtrl.$modelValue)
-        );
-      }
-    },
-    step: (newValue) => {
-      newValue = +newValue;
-      const stepVal = !isNaN(newValue) ? newValue: uiSliderThumbCtrl.step;
-      if (hasChangedValue(stepVal, uiSliderThumbCtrl.step)) {
-        uiSliderThumbCtrl.step = stepVal;
-        ngModelCtrl.$setViewValue(
-          uiSliderThumbCtrl.formatValue(ngModelCtrl.$modelValue)
-        );
-      }
-    }
-  };
-
-  Object
-    .keys(OBBSERVED_ATTRS)
-    .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
-    .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
-
-  Object
-    .keys(OBBSERVED_ATTRS)
-    .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
-    .forEach(([attrAction, attrName]) => {
-      if (angular.isDefined(iAttrs[attrName])){
-        // You don't have to listen to your parents if you gat your own ;)
-        return;
-      }
-      scope.$watch(() => uiSliderCtrl[attrName], attrAction);
-    })
-  ;
+  _observeUiSliderThumbAttributes(iAttrs, uiSliderThumbCtrl);
 
 }
 
@@ -140,7 +88,7 @@ function _setupAttrsObservers($element, $swipe, $scope, {uiSliderCtrl, uiSliderT
   var hasMultipleThumb = 1 < $element.parent()[0].querySelectorAll(COMPONENT_SELECTOR).length;
 
   // Bind the click on the bar then you can move it all over the page.
-  $swipe.bind(uiSliderCtrl.element, {start: onClickOnTrack});
+  $swipe.bind(uiSliderCtrl.element, { start: onClickOnTrack });
 
   function onClickOnTrack(coord, event) {
     if (hasMultipleThumb && event.target !== $element[0]) {
@@ -219,7 +167,7 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
   // FORMATTING
   ////////////////////////////////////////////////////////////////////
   // Final view format
-  ngModelCtrl.$formatters.push(value => +value);
+  ngModelCtrl.$formatters.push(value => value && +value);
 
   // Checks that it's on the step
   ngModelCtrl.$parsers.push(function stepParser(value) {
@@ -275,12 +223,40 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderThumbCtrl}) {
       return value;
     } else {
       ngModelCtrl.$setValidity('number', false);
-      return undefined;
+      return void 0;
     }
   });
 }
 
-function hasChangedValue(newVal, oldVal){
+function hasChangedValue(newVal, oldVal) {
   return !angular.isUndefined(newVal)
     && !isNaN(newVal) && oldVal !== newVal;
+}
+
+
+//
+
+function _observeUiSliderThumbAttributes(iAttrs, uiSliderThumbCtrl) {
+
+  // TODO(douglasduteil): [REFACTO] unify observed attrs with change event broadcast
+  const OBBSERVED_ATTRS = {
+    max: (newValue) => {
+      if (isNaN(+newValue) || newValue === '') { return; }
+      uiSliderThumbCtrl.max = +newValue;
+    },
+    min: (newValue) => {
+      if (isNaN(+newValue) || newValue === '') { return; }
+      uiSliderThumbCtrl.min = +newValue;
+    },
+    step: (newValue) => {
+      if (isNaN(+newValue) || newValue === '') { return; }
+      uiSliderThumbCtrl.step = +newValue;
+    }
+  };
+
+  Object
+    .keys(OBBSERVED_ATTRS)
+    .map((attrName) => [OBBSERVED_ATTRS[attrName], attrName])
+    .forEach(([attrAction, attrName]) => iAttrs.$observe(attrName, attrAction))
+
 }

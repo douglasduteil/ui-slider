@@ -48,7 +48,7 @@ describe('uiSlider', function () {
 
     it('should use the "default theme"', function () {
       const element = this.$compile('<ui-slider></ui-slider>')(this.$rootScope);
-      expect(element[0]).to.has.class('ui-slider--default');
+      expect(element).to.have.class('ui-slider--default');
     });
 
     it('should auto fill itself with a thumb', function () {
@@ -66,8 +66,8 @@ describe('uiSlider', function () {
       const element = this.$compile(
         '<ui-slider class="my-ui-slider--theme"></ui-slider>'
       )(this.$rootScope);
-      expect(element[0]).not.to.has.class('ui-slider--default');
-      expect(element[0]).to.has.class('my-ui-slider--theme');
+      expect(element).not.to.have.class('ui-slider--default');
+      expect(element).to.have.class('my-ui-slider--theme');
     });
 
   });
@@ -104,6 +104,6 @@ describe('uiSlider', function () {
       expect(this.uiSliderCtrl.max).to.equal(10);
       expect(this.uiSliderCtrl.step).to.equal(5);
     });
-  })
+  });
 
 });
