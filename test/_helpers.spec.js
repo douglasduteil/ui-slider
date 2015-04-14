@@ -9,7 +9,7 @@ chai.config.truncateThreshold = 2;
   Assertion.addProperty('pristine', chaiStrictClassMatcher('ng-pristine', 'ng-dirty'));
   Assertion.addProperty('dirty', chaiStrictClassMatcher('ng-dirty', 'ng-pristine'));
   Assertion.addProperty('invalid', chaiStrictClassMatcher('ng-invalid', 'ng-valid'));
-  Assertion.addProperty('valid', chaiStrictClassMatcher('ng-valid','ng-invalid'));
+  Assertion.addProperty('valid', chaiStrictClassMatcher('ng-valid', 'ng-invalid'));
 
   ////
 
