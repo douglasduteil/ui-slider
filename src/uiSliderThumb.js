@@ -180,12 +180,6 @@ function uiSliderNgModel(ngModelCtrl, {$element, uiSliderCtrl, uiSliderThumbCtrl
 
 }
 
-function hasChangedValue(newVal, oldVal) {
-  return !angular.isUndefined(newVal)
-    && !isNaN(newVal) && oldVal !== newVal;
-}
-
-
 //
 
 function _observeUiSliderThumbAttributes({
