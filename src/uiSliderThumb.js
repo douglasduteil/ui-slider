@@ -28,7 +28,7 @@ export default class uiSliderThumb {
     // TODO(douglasduteil): use window.performance.now();
     this._time = +new Date();
 
-    this.setupAttrsObservers = _setupMouseEvent.bind(this, $element, $swipe, $scope)
+    this.setupAttrsObservers = _setupMouseEvent.bind(this, $element, $swipe, $scope);
   }
 
   getNormalizedThumbPosition(coord) {
@@ -84,7 +84,7 @@ function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl])
     iAttrs,
     uiSliderCtrl,
     uiSliderThumbCtrl
-  })(ngModelCtrl)
+  })(ngModelCtrl);
 }
 
 function _setupMouseEvent($element, $swipe, $scope, {uiSliderCtrl, uiSliderThumbCtrl, ngModelCtrl}) {
@@ -212,7 +212,11 @@ function _formatNgModelToNumberType({
   uiSliderCtrl,
   uiSliderThumbCtrl
   }) {
-  return function ngModelFormatters(ngModelCtrl) {
+  return ngModelFormatters;
+
+  ////
+
+  function ngModelFormatters(ngModelCtrl) {
 
     ngModelCtrl.$parsers.push(function parseAsNumber(value) {
       if (ngModelCtrl.$isEmpty(value)) { return null; }
@@ -318,7 +322,7 @@ function _formatNgModelToNumberType({
     ngModelCtrl.$validators.parentStep = function maxValidator(value) {
       const step = uiSliderCtrl.step;
       return ngModelCtrl.$isEmpty(value)
-        || value === Math.floor(value / step) * step
+        || value === Math.floor(value / step) * step;
     };
 
     if (angular.isDefined(iAttrs.step)) {
@@ -326,7 +330,7 @@ function _formatNgModelToNumberType({
         const step = uiSliderThumbCtrl.step;
         return ngModelCtrl.$isEmpty(value)
           || angular.isUndefined(step)
-          || value === Math.floor(value / step) * step
+          || value === Math.floor(value / step) * step;
       };
     }
 

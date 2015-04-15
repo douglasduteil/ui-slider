@@ -23,7 +23,9 @@ export default class uiSliderRange {
   renderRangeChange() {
     // TODO(douglasduteil): use lodash partial...
     const projectOnSliderCtrlLimits = (val) => {
-      return _projectToMinMaxSpace(val, this.uiSliderCtrl.min, this.uiSliderCtrl.max) * 100
+      return _projectToMinMaxSpace(
+          val, this.uiSliderCtrl.min, this.uiSliderCtrl.max
+        ) * 100;
     };
 
     // TODO(douglasduteil): [REFACTO]

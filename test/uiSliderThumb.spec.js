@@ -241,7 +241,7 @@ describe('uiSliderThumb', function () {
           expect(this.element).to.be.pristine.and.to.be.invalid;
           expect(this.element).to.have.class('ng-invalid-parent-step');
         });
-      })
+      });
 
     });
 
@@ -357,6 +357,6 @@ describe('uiSliderThumb', function () {
         });
       });
 
-    })
-  })
+    });
+  });
 });

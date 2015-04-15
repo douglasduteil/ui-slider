@@ -120,7 +120,7 @@ describe('uiSliderRange', function () {
 
       it('should should render from "left : 25%" to "right: 0%"' +
       ' when { min : 25 }', function () {
-        this.uiSliderRangeCtrl.min = 25
+        this.uiSliderRangeCtrl.min = 25;
 
         this.uiSliderRangeCtrl.renderRangeChange();
 
@@ -132,7 +132,7 @@ describe('uiSliderRange', function () {
 
       it('should should render from "left : 0%" to "right: 25%"' +
       ' when { max : 75 }', function () {
-        this.uiSliderRangeCtrl.max = 75
+        this.uiSliderRangeCtrl.max = 75;
 
         this.uiSliderRangeCtrl.renderRangeChange();
 
@@ -144,8 +144,8 @@ describe('uiSliderRange', function () {
 
       it('should should render from "left : 25%" to "right: 25%"' +
       ' when { min : 25, max : 75 }', function () {
-        this.uiSliderRangeCtrl.min = 25
-        this.uiSliderRangeCtrl.max = 75
+        this.uiSliderRangeCtrl.min = 25;
+        this.uiSliderRangeCtrl.max = 75;
 
         this.uiSliderRangeCtrl.renderRangeChange();
 
@@ -180,7 +180,7 @@ describe('uiSliderRange', function () {
 
       it('should should render from "left : 25%" to "right: 0%"' +
       ' when { min : -25 }', function () {
-        this.uiSliderRangeCtrl.min = -25
+        this.uiSliderRangeCtrl.min = -25;
 
         this.uiSliderRangeCtrl.renderRangeChange();
 
@@ -192,7 +192,7 @@ describe('uiSliderRange', function () {
 
       it('should should render from "left : 0%" to "right: 25%"' +
       ' when { max : 25 }', function () {
-        this.uiSliderRangeCtrl.max = 25
+        this.uiSliderRangeCtrl.max = 25;
 
         this.uiSliderRangeCtrl.renderRangeChange();
 
@@ -204,8 +204,8 @@ describe('uiSliderRange', function () {
 
       it('should should render from "left : 25%" to "right: 25%"' +
       ' when { min : -25, max : 25 }', function () {
-        this.uiSliderRangeCtrl.min = -25
-        this.uiSliderRangeCtrl.max = 25
+        this.uiSliderRangeCtrl.min = -25;
+        this.uiSliderRangeCtrl.max = 25;
 
         this.uiSliderRangeCtrl.renderRangeChange();
 

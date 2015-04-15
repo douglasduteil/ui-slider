@@ -1,4 +1,4 @@
-//
+/* global chai */
 
 chai.config.truncateThreshold = 2;
 
@@ -14,6 +14,8 @@ chai.config.truncateThreshold = 2;
   ////
 
   function chaiClassHelper(className) {
+    /* jshint validthis: true */
+
     const obj = this._obj;
 
     // REQUIRED

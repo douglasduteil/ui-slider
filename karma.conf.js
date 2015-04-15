@@ -1,3 +1,5 @@
+/* jshint node: true */
+
 'use strict';
 
 var extend = require('util')._extend;

@@ -27,7 +27,7 @@ function uiSliderCompile(tElement) {
 
   return function (scope, iElement, iAttrs, uiSliderCtrl) {
     _observeUiSliderAttributes(iAttrs, uiSliderCtrl);
-  }
+  };
 }
 
 //
