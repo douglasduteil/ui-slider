@@ -20,7 +20,7 @@ module.exports = function (config) {
 
   config.set({
     frameworks: ['mocha', 'chai', 'sinon-chai', 'jspm'],
-    files: ['node_modules/babel-core/browser-polyfill.js'],
+    files: [],
     reporters: ['mocha'],
     preprocessors: {
       'src/**/*.js': ['babel'],

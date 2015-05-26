@@ -4,7 +4,10 @@ System.config({
   "baseURL": "/",
   "transpiler": "babel",
   "babelOptions": {
-    "stage": 1
+    "stage": 1,
+    "optional": [
+      "runtime"
+    ]
   },
   "paths": {
     "*": "*.js",
@@ -18,9 +21,9 @@ System.config({
     "angular": "github:angular/bower-angular@1.3.15",
     "angular-mocks": "github:angular/bower-angular-mocks@1.3.15",
     "angular-touch": "github:angular/bower-angular-touch@1.3.15",
-    "babel": "npm:babel-core@5.1.13",
-    "babel-runtime": "npm:babel-runtime@5.1.13",
-    "core-js": "npm:core-js@0.8.4",
+    "babel": "npm:babel-core@5.4.7",
+    "babel-runtime": "npm:babel-runtime@5.4.7",
+    "core-js": "npm:core-js@0.9.13",
     "css": "github:systemjs/plugin-css@0.1.9",
     "lodash": "npm:lodash@3.6.0",
     "ng2in1": "github:douglasduteil/ng2in1@master",
@@ -112,8 +115,10 @@ System.config({
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.1"
     },
-    "npm:core-js@0.8.4": {
-      "process": "github:jspm/nodelibs-process@0.1.1"
+    "npm:core-js@0.9.13": {
+      "fs": "github:jspm/nodelibs-fs@0.1.2",
+      "process": "github:jspm/nodelibs-process@0.1.1",
+      "systemjs-json": "github:systemjs/plugin-json@0.1.0"
     },
     "npm:core-util-is@1.0.1": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0"

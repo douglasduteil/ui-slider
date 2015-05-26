@@ -1,6 +1,6 @@
 /* global chai */
 
-chai.config.truncateThreshold = 2;
+window.chai.config.truncateThreshold = 2;
 
 (function chaiHelpers(Assertion) {
   'use strict';
@@ -49,4 +49,4 @@ chai.config.truncateThreshold = 2;
       ;
     };
   }
-}(chai.Assertion));
+}(window.chai.Assertion));
