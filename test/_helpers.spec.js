@@ -1,4 +1,4 @@
-/* global chai */
+//
 
 window.chai.config.truncateThreshold = 2;
 

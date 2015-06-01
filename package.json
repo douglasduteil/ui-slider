@@ -34,7 +34,7 @@
     "karma-babel-preprocessor": "^5.0.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^0.1.7",
-    "karma-coverage": "git://github.com/karma-runner/karma-coverage.git#master",
+    "karma-coverage": "^0.3.1",
     "karma-firefox-launcher": "^0.1.4",
     "karma-jspm": "^1.1.4",
     "karma-mocha": "^0.1.10",
@@ -49,7 +49,6 @@
     "scss": "scss src/uiSlider.scss:index.css -t expanded -l --precision 3"
   },
   "jspm": {
-    "jspmNodeConversion": false,
     "format": "es6",
     "directories": {},
     "configFile": "jspm.config.js",
