@@ -21,6 +21,7 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
 })
 export default class uiSliderThumb {
 
+  // @ngInject
   constructor($injector, $element, $attrs, $scope, $swipe) {
 
     this.$injector = $injector;

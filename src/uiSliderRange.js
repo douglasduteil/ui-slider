@@ -13,6 +13,7 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
   selector: 'ui-slider-range'
 })
 export default class uiSliderRange {
+  // @ngInject
   constructor($element, $attrs) {
 
     this.$element = $element;
