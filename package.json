@@ -49,6 +49,8 @@
     "scss": "scss src/uiSlider.scss:index.css -t expanded -l --precision 3"
   },
   "jspm": {
+    "jspmNodeConversion": false,
+    "format": "es6",
     "directories": {},
     "configFile": "jspm.config.js",
     "dependencies": {
