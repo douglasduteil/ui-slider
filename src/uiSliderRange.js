@@ -44,6 +44,8 @@ export default class uiSliderRange {
 
 }
 
+uiSliderRange.$inject = ['$element', '$attrs'];
+
 function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
 
   const uiSliderRangeCtrl = iElement.controller(uiSliderRange.name);

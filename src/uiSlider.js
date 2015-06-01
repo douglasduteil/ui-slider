@@ -21,6 +21,8 @@ export default class uiSlider {
   }
 }
 
+uiSlider.$inject = ['$element'];
+
 ////
 
 function uiSliderCompile(tElement) {

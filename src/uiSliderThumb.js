@@ -21,7 +21,6 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
 })
 export default class uiSliderThumb {
 
-  // @ngInject
   constructor($injector, $element, $attrs, $scope, $swipe) {
 
     this.$injector = $injector;
@@ -62,6 +61,8 @@ export default class uiSliderThumb {
   }
 
 }
+
+uiSliderThumb.$inject = ['$injector', '$element', '$attrs', '$scope', '$swipe'];
 
 function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl]) {
   const uiSliderThumbCtrl = iElement.controller(uiSliderThumb.name);
