@@ -14,7 +14,7 @@ import uiSliderRange from './uiSliderRange';
 export default class uiSlider {
   static get moduleAnnotation() {
     return {
-      dependencies: ['ngTouch']
+      dependencies: ['ngTouch'],
       factoryName: 'uiSlider'
     };
   }
