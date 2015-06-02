@@ -54,7 +54,7 @@ uiSliderRange.$inject = ['$element', '$attrs'];
 
 function uiSliderRangeLink(scope, iElement, iAttrs, [uiSliderCtrl]) {
 
-  const uiSliderRangeCtrl = iElement.controller(uiSliderRange.name);
+  const uiSliderRangeCtrl = iElement.controller('uiSliderRange');
 
   // REQUIRED ! (Lazy injecting...)
   uiSliderRangeCtrl.uiSliderCtrl = uiSliderCtrl;

@@ -70,7 +70,7 @@ export default class uiSliderThumb {
 uiSliderThumb.$inject = ['$injector', '$element', '$attrs', '$scope', '$swipe'];
 
 function uiSliderThumbLink(scope, iElement, iAttrs, [uiSliderCtrl, ngModelCtrl]) {
-  const uiSliderThumbCtrl = iElement.controller(uiSliderThumb.name);
+  const uiSliderThumbCtrl = iElement.controller('uiSliderThumb');
 
   uiSliderThumbCtrl.setupAttrsObservers({
     uiSliderCtrl,
