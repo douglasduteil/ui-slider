@@ -15,7 +15,7 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
 export default class uiSliderRange {
   static get moduleAnnotation() {
     return {
-      moduleName: 'uiSliderRange'
+      factoryName: 'uiSliderRange'
     };
   }
 

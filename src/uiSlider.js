@@ -14,7 +14,7 @@ import uiSliderRange from './uiSliderRange';
 export default class uiSlider {
   static get moduleAnnotation() {
     return {
-      moduleName: 'uiSlider'
+      factoryName: 'uiSlider'
     };
   }
 

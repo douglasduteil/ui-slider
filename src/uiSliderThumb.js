@@ -22,7 +22,7 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
 export default class uiSliderThumb {
   static get moduleAnnotation() {
     return {
-      moduleName: 'uiSliderThumb'
+      factoryName: 'uiSliderThumb'
     };
   }
 
