@@ -12,6 +12,12 @@ import uiSliderRange from './uiSliderRange';
   directives: [uiSliderThumb, uiSliderRange]
 })
 export default class uiSlider {
+  static get moduleAnnotation() {
+    return {
+      moduleName: 'uiSlider'
+    };
+  }
+
   // @ngInject
   constructor($element) {
     this.element = $element;

@@ -13,9 +13,11 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
   selector: 'ui-slider-range'
 })
 export default class uiSliderRange {
-  static moduleAnnotation = {
-    moduleName: 'uiSliderRange'
-  };
+  static get moduleAnnotation() {
+    return {
+      moduleName: 'uiSliderRange'
+    };
+  }
 
   // @ngInject
   constructor($element, $attrs) {

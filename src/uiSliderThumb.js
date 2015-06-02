@@ -20,9 +20,11 @@ var COMPONENT_SELECTOR = 'ui-slider-thumb';
   selector: COMPONENT_SELECTOR
 })
 export default class uiSliderThumb {
-  static moduleAnnotation = {
-    moduleName: 'uiSliderThumb'
-  };
+  static get moduleAnnotation() {
+    return {
+      moduleName: 'uiSliderThumb'
+    };
+  }
 
   constructor($injector, $element, $attrs, $scope, $swipe) {
 
